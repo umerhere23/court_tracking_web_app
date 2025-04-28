@@ -1,0 +1,60 @@
+Table Case {
+  Case_ID integer [primary key]
+  Defendant_ID integer
+  Created_At timestamp [default: `now()`]
+  Updated_At timestamp [default: `now()`]
+}
+
+Table Defendant {
+  Defendant_ID integer [primary key]
+  Name varchar
+  Date_of_Birth date
+  Address varchar
+  Ethnicity varchar
+  Phone_Number varchar
+  Email varchar
+  Created_At timestamp [default: `now()`]
+  Updated_At timestamp [default: `now()`]
+}
+
+Table Charge {
+  Charge_ID integer [primary key]
+  Case_ID integer
+  Description varchar
+  Status varchar
+  Created_At timestamp [default: `now()`]
+  Updated_At timestamp [default: `now()`]
+}
+
+Table Lawyer {
+  Lawyer_ID integer [primary key]
+  Name varchar
+  Email varchar
+  Phone_Number varchar
+  Firm varchar
+  Created_At timestamp [default: `now()`]
+  Updated_At timestamp [default: `now()`]
+}
+
+Table Case_Lawyer {
+  Case_ID integer
+  Lawyer_ID integer
+  [primary key: Case_ID, Lawyer_ID]
+}
+
+Table Court_Event {
+  Event_ID integer [primary key]
+  Case_ID integer
+  Location varchar
+  Description varchar
+  Date date
+  Created_At timestamp [default: `now()`]
+  Updated_At timestamp [default: `now()`]
+}
+
+// Relationships
+Ref: Case.Defendant_ID > Defendant.Defendant_ID
+Ref: Charge.Case_ID > Case.Case_ID
+Ref: Case_Lawyer.Case_ID > Case.Case_ID
+Ref: Case_Lawyer.Lawyer_ID > Lawyer.Lawyer_ID
+Ref: Court_Event.Case_ID > Case.Case_ID
