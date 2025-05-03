@@ -18,3 +18,11 @@ DEFINE("APP",LIB."/application.php");
 // DEFINE("LAYOUT","standard");
 
 require APP;
+
+require MODEL;
+
+get("/", function($app) {
+    return "Hello, world!";
+});
+
+resolve();
