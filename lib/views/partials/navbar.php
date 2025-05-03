@@ -18,6 +18,9 @@
           <a class="nav-link" href="index.php?view=reports">Reports</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="search">Search</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="index.php?logout=true">Login</a>
         </li>
       </ul>

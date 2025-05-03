@@ -1,23 +1,12 @@
 <?php
-DEFINE("LIB", $_SERVER['DOCUMENT_ROOT'] . "/court_tracking_web_app/lib");
-DEFINE("VIEWS", LIB . "/views");
-DEFINE("PARTIALS", VIEWS . "/partials");
+require_once '../lib/includes/mouse.php';
 
-$layout = 'standard';
+get('/', function($app) {
+    ($app->render)('standard', 'home.view');
+});
 
+get('/search', function($app) {
+    require_once '../lib/includes/search_controller.php';
+});
 
-$content = 'home.view';
-
-if(isset($_GET  ['view']) && !empty($_GET['view'])) {
-    $requested = basename($_GET['view']);
-    $path = VIEWS . "./{$requested}.php";
-    if (file_exists($path)) {
-        $content = $requested;
-    } else {
-        $content = '404.view';
-    }
-}
-
-require VIEWS . "/{$layout}.layout.php";
-
-?>
+resolve();
