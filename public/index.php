@@ -21,8 +21,8 @@ require APP;
 
 require MODEL;
 
-get("/", function($app) {
-    return "Hello, world!";
+get("/defendant/add", function($app) {
+    return $app->render("standard", "defendant_form");
 });
 
 resolve();
