@@ -7,15 +7,15 @@ error_reporting(E_ERROR | E_PARSE);
 DEFINE("LIB",$_SERVER['DOCUMENT_ROOT']."/../lib/");
 
 /* path to views and partials */
-// DEFINE("VIEWS",LIB."views/");
-// DEFINE("PARTIALS",VIEWS."/partials");
+DEFINE("VIEWS",LIB."views/");
+DEFINE("PARTIALS",VIEWS."/partials");
 
 /* path to MODEL and APP */
 DEFINE("MODEL",LIB."/model.php");
 DEFINE("APP",LIB."/application.php");
 
 /* define layout */
-// DEFINE("LAYOUT","standard");
+DEFINE("LAYOUT","standard");
 
 require APP;
 
