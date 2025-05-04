@@ -1,6 +1,6 @@
 <h1>Multi-Table Search</h1>
 
-<form method="get" action="<?= dirname($_SERVER['SCRIPT_NAME']) ?>/search">
+<form method="get" action="<?= dirname($_SERVER['SCRIPT_NAME']) ?>/defendant/search">
     <label for="field">Search by:</label>
     <select name="field" id="field">
         <option value="name" <?= ($query['field'] ?? '') === 'name' ? 'selected' : '' ?>>Defendant Name</option>

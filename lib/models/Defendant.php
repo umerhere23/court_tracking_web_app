@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../includes/Database.php';
+require_once __DIR__ . '\\..\\includes\\Database.php';
 
 class Defendant
 {
@@ -8,6 +8,24 @@ class Defendant
     public function __construct()
     {
         $this->db = Database::getInstance()->getConnection();
+    }
+
+    public static function create($data) {
+        $db = Database::getInstance()->getConnection();
+
+        $stmt = $db->prepare("
+            INSERT INTO defendant (Name, Date_of_Birth, Address, Ethnicity, Phone_Number, Email)
+            VALUES (:name, :dob, :address, :ethnicity, :phone, :email)
+        ");
+
+        $stmt->execute([
+            ':name'      => $data['name'] ?? '',
+            ':dob'       => $data['dob'] ?? '',
+            ':address'   => $data['address'] ?? '',
+            ':ethnicity' => $data['ethnicity'] ?? '',
+            ':phone'     => $data['phone'] ?? '',
+            ':email'     => $data['email'] ?? ''
+        ]);
     }
 
     public function search_fielded(string $field, string $term): array
