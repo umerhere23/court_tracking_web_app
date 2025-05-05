@@ -30,7 +30,6 @@ if (strpos($action, 'add/') === 0) {
         case 'event':
             require __DIR__ . '/event_controller.php'; 
             break;
-        case 'confirm':
         default:
             http_response_code(404);
             echo "Invalid step.";
@@ -40,9 +39,43 @@ if (strpos($action, 'add/') === 0) {
 }
 
 if ($action === 'confirm') {
-    handle_confirm_case($app);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        handle_confirm_case($app);
+    } else {
+        show_review_page($app);
+    }
     exit;
 }
+
+if ($action === 'confirm_case') {
+    ($app->render)('standard', 'case_confirm');
+    return;
+}
+
+function show_review_page($app) {
+    $case = $_SESSION['case'] ?? [];
+    $event = $_SESSION['event'] ?? [];
+
+    $db = Database::getInstance()->getConnection();
+
+    // Fetch defendant
+    $stmt = $db->prepare("SELECT * FROM defendant WHERE defendant_ID = ?");
+    $stmt->execute([$case['defendant_ID']]);
+    $defendant = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Fetch lawyer
+    $stmt = $db->prepare("SELECT * FROM lawyer WHERE lawyer_ID = ?");
+    $stmt->execute([$case['lawyer_ID']]);
+    $lawyer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    ($app->render)('standard', 'confirm_view', [
+        'case' => $case,
+        'event' => $event,
+        'defendant' => $defendant,
+        'lawyer' => $lawyer
+    ]);
+}
+
 
 function handle_confirm_case($app) {
 
@@ -87,7 +120,7 @@ function handle_confirm_case($app) {
         unset($_SESSION['case']);
 
         ($app->set_message)('success', 'Case added successfully.');
-        header("Location: " . BASE_URL . "/");
+        header("Location: " . BASE_URL . "/case/confirm_case");
         exit;
 
     } catch (PDOException $e) {
