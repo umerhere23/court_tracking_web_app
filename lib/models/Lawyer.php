@@ -33,5 +33,5 @@ class Lawyer
     {
         $stmt = $this->db->query("SELECT lawyer_ID, Name FROM lawyer ORDER BY Name ASC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+    }    
 }

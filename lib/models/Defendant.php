@@ -19,8 +19,8 @@ class Defendant
         ");
 
         $stmt->execute([
-            ':name'      => $data['name'] ?? '',
-            ':dob'       => $data['dob'] ?? '',
+            ':name'      => $data['name'],
+            ':dob'       => $data['dob'],
             ':address'   => $data['address'] ?? '',
             ':ethnicity' => $data['ethnicity'] ?? '',
             ':phone'     => $data['phone'] ?? '',

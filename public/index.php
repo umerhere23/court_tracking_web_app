@@ -11,17 +11,25 @@ get('/', function($app) {
     ($app->render)('standard', 'home');
 });
 
-// ADD TO DATABASE REQUESTS
-path('/admin/database', function($app) {
-    ($app->render)('standard', 'database_actions');
+// DATABASE REQUESTS
+path('/defendant/{action}', function($app, $action) {
+    require_once __DIR__ . '/../lib/includes/defendant_controller.php';
+});
+
+path('/charge/{action}', function($app, $action) {
+    require_once __DIR__ . '/../lib/includes/charge_controller.php';
+});
+
+path('/lawyer/{action}', function($app, $action) {
+    require_once __DIR__ . '/../lib/includes/lawyer_controller.php';
+});
+
+path('/event/{action}', function($app, $action) {
+    require_once __DIR__ . '/../lib/includes/event_controller.php';
 });
 
 path('/case/{action}', function($app, $action) {
     require_once __DIR__ . '/../lib/includes/case_controller.php';
-});
-
-path('/defendant/{action}', function($app, $action) {
-    require_once __DIR__ . '/../lib/includes/defendant_controller.php';
 });
 
 resolve();

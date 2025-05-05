@@ -1,15 +1,24 @@
-<h2>Add Defendant</h2>
+<h2>Add or Select Defendant</h2>
 
 <?php if (!empty($success)): ?>
-    <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
+  <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
 <?php endif; ?>
 
-<form method="POST" action="/court_tracking_web_app/public/defendant/add">
-    <label>Name: <input type="text" name="name" required></label><br>
-    <label>DOB: <input type="date" name="dob" required></label><br>
-    <label>Address: <input type="text" name="address"></label><br>
-    <label>Ethnicity: <input type="text" name="ethnicity"></label><br>
-    <label>Phone: <input type="text" name="phone"></label><br>
-    <label>Email: <input type="email" name="email"></label><br>
-    <button type="submit">Add Defendant</button>
+<form method="POST" action="<?= BASE_URL ?>/defendant/add">
+  <div class="mb-3">
+    <label class="form-label">Select Existing Defendant</label>
+    <select class="form-select" name="defendant_ID">
+      <option value="">-- Choose --</option>
+      <?php foreach ($defendants as $d): ?>
+        <option value="<?= $d['defendant_ID'] ?>"><?= htmlspecialchars($d['Name']) ?></option>
+      <?php endforeach; ?>
+    </select>
+  </div>
+  <button type="submit" name="action" value="select_existing" class="btn btn-primary mt-3">Next: Court Event</button>
+
+  <hr>
+  <h5>Or Add New Defendant</h5>
+  <?php require PARTIALS . '/_defendant_form.php'; ?>
+  <button type="submit" name="action" value="add_new" class="btn btn-secondary mt-3">Add New</button>
+
 </form>

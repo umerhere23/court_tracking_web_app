@@ -1,11 +1,26 @@
 <?php
+session_start();
+
 require_once __DIR__ . '/../models/Defendant.php';
 
 function handle_add_defendant($app) {
     try {
-        Defendant::create($_POST);
-        header("Location: " . BASE_URL . "/defendant/add?success=1");
+        if ($_POST['action'] === 'add_new') {
+            $defendantID = Defendant::create($_POST);
+        } elseif ($_POST['action'] === 'select_existing' && !empty($_POST['defendant_ID'])) {
+            $defendantID = $_POST['defendant_ID'];
+        } else {
+            throw new Exception("Please select or add a defendant.");
+        }
+        
+
+        $_SESSION['case']['defendant_ID'] = $defendantID ?? 'not found';
+        header("Location: " . BASE_URL . "/charge/add");
         exit;
+
+    } catch (Exception $e) {
+        http_response_code(400);
+        echo "Error: " . $e->getMessage();
     } catch (PDOException $e) {
         http_response_code(500);
         echo "Database error: " . $e->getMessage();
@@ -33,7 +48,9 @@ if ($action === 'add') {
         if (isset($_GET['success'])) {
             ($app->set_message)('success', 'Defendant added successfully.');
         }
-        ($app->render)('standard', 'defendant_form');
+        $defendants = (new Defendant())->all();
+
+        ($app->render)('standard', 'defendant_form', ['defendants' => $defendants]);
     }
 
 } elseif ($action === 'search' && $_SERVER['REQUEST_METHOD'] === 'GET') {
