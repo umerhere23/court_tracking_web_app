@@ -28,6 +28,12 @@ class Defendant
         ]);
     }
 
+    public function all(): array
+    {
+        $stmt = $this->db->query("SELECT defendant_ID, Name FROM defendant ORDER BY Name ASC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function search_fielded(string $field, string $term): array
     {
         $base_sql = "

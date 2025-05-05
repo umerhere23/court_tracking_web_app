@@ -15,4 +15,12 @@ path('/defendant/{action}', function($app, $action) {
     require_once __DIR__ . '/../lib/includes/defendant_controller.php';
 });
 
+path('/case/{action}', function($app, $action) {
+    require_once __DIR__ . '/../lib/includes/case_controller.php';
+});
+
+path('/database', function($app, $action) {
+    require_once __DIR__ . '/../lib/includes/database_actions.php';
+});
+
 resolve();
