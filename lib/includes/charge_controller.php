@@ -3,6 +3,7 @@ session_start();
 require_once __DIR__ . '/../models/Charge.php';
 
 function handle_add_charge($app) {
+    // function saves details to session for 'Case' to deal with
     try {
         if (empty($_POST['description'])) {
             throw new Exception("Charge description is required.");

@@ -6,8 +6,10 @@ require_once __DIR__ . '/../models/Lawyer.php';
 function handle_add_lawyer($app) {
     try {
         if ($_POST['action'] === 'add_new') {
+            // assign existing lawyer to case
             $lawyerID = Lawyer::create($_POST);
         } elseif ($_POST['action'] === 'select_existing' && !empty($_POST['lawyer_ID'])) {
+            // create new lawyer
             $lawyerID = $_POST['lawyer_ID'];
         } else {
             throw new Exception("Please select or add a lawyer.");

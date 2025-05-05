@@ -30,6 +30,7 @@ class Lawyer
     }
 
     public function all(): array
+    // returns all entries from database for dynamic drop down menus
     {
         $stmt = $this->db->query("SELECT lawyer_ID, Name FROM lawyer ORDER BY Name ASC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);

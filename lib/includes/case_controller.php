@@ -30,7 +30,7 @@ if (strpos($action, 'add/') === 0) {
         case 'event':
             require __DIR__ . '/event_controller.php'; 
             break;
-        default:
+        default: // deal with erroneous steps
             http_response_code(404);
             echo "Invalid step.";
     }
@@ -38,6 +38,7 @@ if (strpos($action, 'add/') === 0) {
     return;
 }
 
+// handles review and confirmed case
 if ($action === 'confirm') {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         handle_confirm_case($app);
@@ -47,6 +48,7 @@ if ($action === 'confirm') {
     exit;
 }
 
+// show success message
 if ($action === 'confirm_case') {
     ($app->render)('standard', 'case_confirm');
     return;
@@ -80,7 +82,9 @@ function show_review_page($app) {
 function handle_confirm_case($app) {
 
     $data = $_SESSION['case'] ?? [];
+    $event = $_SESSION['event'] ?? [];
 
+    // ensure we can link to all dependent entities
     if (empty($data['defendant_ID']) || empty($data['charge_description']) || empty($data['lawyer_ID'])) {
         http_response_code(400);
         echo "Missing required data in session. Please complete all steps.";
@@ -107,8 +111,8 @@ function handle_confirm_case($app) {
         $stmt = $db->prepare("INSERT INTO case_lawyer (case_ID, lawyer_ID) VALUES (?, ?)");
         $stmt->execute([$caseID, $data['lawyer_ID']]);
 
-        // 4. Optional: Add Court Event
-        if (!empty($data['event_description']) && !empty($data['event_date']) && !empty($data['event_location'])) {
+        // 4. Add Court Event (optional)
+        if (!empty($data['event_description']) || !empty($data['event_date']) || !empty($data['event_location'])) {
             CourtEvent::create($caseID, [
                 'description' => $data['event_description'],
                 'date'        => $data['event_date'],
@@ -118,6 +122,7 @@ function handle_confirm_case($app) {
 
         $db->commit();
         unset($_SESSION['case']);
+        unset($_SESSION['event']);
 
         ($app->set_message)('success', 'Case added successfully.');
         header("Location: " . BASE_URL . "/case/confirm_case");

@@ -1,13 +1,17 @@
 <?php
+session_start();
+
 require_once __DIR__ . '/../models/CourtEvent.php';
 
 function handle_add_event($app) {
     try {
+        // save data to session for Case to add to database
         $_SESSION['event']['description'] = $_POST['description'] ?? '';
         $_SESSION['event']['date'] = $_POST['date'] ?? ''; 
         $_SESSION['event']['location'] = $_POST['location'] ?? '';
 
         header("Location: " . BASE_URL . "/case/confirm");
+        
         exit;
     } catch (Exception $e) {
         http_response_code(400);
