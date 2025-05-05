@@ -2,22 +2,22 @@
 
 USE court_tracking_system;
 
--- Insert into Defendant table
-INSERT INTO Defendant (Name, Date_of_Birth, Address, Ethnicity, Phone_Number, Email)
+-- Insert into defendant table
+INSERT INTO defendant (Name, Date_of_Birth, Address, Ethnicity, Phone_Number, Email)
 VALUES 
 ('John Doe', '1985-04-12', '123 Main Street, Sydney', 'Caucasian', '0412345678', 'john.doe@example.com'),
 ('Jane Smith', '1990-07-23', '456 Elm Street, Melbourne', 'Asian', '0498765432', 'jane.smith@example.com'),
 ('Michael Johnson', '1978-11-02', '789 Oak Avenue, Brisbane', 'African Australian', '0423456789', 'michael.johnson@example.com');
 
--- Insert into CaseRecord table
-INSERT INTO CaseRecord (Defendant_ID)
+-- Insert into caserecord table
+INSERT INTO caserecord (defendant_ID)
 VALUES 
 (1),
 (2),
 (3);
 
--- Insert into Charge table
-INSERT INTO Charge (Case_ID, Description, Status)
+-- Insert into charge table
+INSERT INTO charge (Case_ID, Description, Status)
 VALUES
 (1, 'Theft under $5000', 'Pending'),
 (1, 'Resisting Arrest', 'Pending'),
@@ -31,15 +31,15 @@ VALUES
 ('Lisa White', 'lisa.white@example.com', '0433344556', 'White Legal Group'),
 ('David Brown', 'david.brown@example.com', '0422334455', 'Brown & Brown Lawyers');
 
--- Insert into Case_Lawyer table
-INSERT INTO Case_Lawyer (Case_ID, Lawyer_ID)
+-- Insert into case_lawyer table
+INSERT INTO case_lawyer (Case_ID, Lawyer_ID)
 VALUES 
 (1, 1),
 (2, 2),
 (3, 3);
 
--- Insert into Court_Event table
-INSERT INTO Court_Event (Case_ID, Location, Description, Date)
+-- Insert into court_event table
+INSERT INTO court_event (Case_ID, Location, Description, Date)
 VALUES 
 (1, 'Sydney Courtroom 1', 'Preliminary hearing for theft and resisting arrest', '2025-05-10'),
 (2, 'Melbourne Courtroom 3', 'Trial for assault occasioning actual bodily harm', '2025-06-15'),

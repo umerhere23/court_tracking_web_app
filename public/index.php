@@ -1,28 +1,18 @@
 <?php
-/* SET to display all warnings in development. Comment next two lines out for production mode*/
-ini_set('display_errors','On');
-error_reporting(E_ERROR | E_PARSE);
+//  Context/This is here because going from C, to Django, to PHP makes me forget how words work.
+// ($app->render)('standard', 'home') is the weird way function calls happen in php sometimes.
+// This is done to avoid confusion with methods. In this case ->render is being called but is defined in compile_app()
+// Same occurs with ->set_message //
+define('BASE_URL', '\\court_tracking_web_app\\public');
 
-/* path to Lib */
-DEFINE("LIB",$_SERVER['DOCUMENT_ROOT']."/../lib/");
+require_once '..\\lib\\includes\\mouse.php';
 
-/* path to views and partials */
-DEFINE("VIEWS",LIB."views/");
-DEFINE("PARTIALS",VIEWS."/partials");
+get('/', function($app) {
+    ($app->render)('standard', 'home');
+});
 
-/* path to MODEL and APP */
-DEFINE("MODEL",LIB."/model.php");
-DEFINE("APP",LIB."/application.php");
-
-/* define layout */
-DEFINE("LAYOUT","standard");
-
-require APP;
-
-require MODEL;
-
-get("/defendant/add", function($app) {
-    return $app->render("standard", "defendant_form");
+path('/defendant/{action}', function($app, $action) {
+    require_once __DIR__ . '\\..\\lib\\includes\\defendant_controller.php';
 });
 
 resolve();
