@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '\\..\\models\\Defendant.php';
+require_once __DIR__ . '/../models/Defendant.php';
 
 function handle_add_defendant($app) {
     try {
