@@ -68,6 +68,8 @@ CREATE TABLE court_event (
     FOREIGN KEY (case_ID) REFERENCES caserecord(case_ID) ON DELETE CASCADE
 );
 
+-- authentication
+
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
