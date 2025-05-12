@@ -38,7 +38,30 @@ if (strpos($action, 'add/') === 0) {
     return;
 }
 
+// to manage an existing case
+if ($action === 'manage') {
+    $db = Database::getInstance()->getConnection();
+    $stmt = $db->query("
+        SELECT c.case_ID, d.Name AS defendant, l.Name AS lawyer
+        FROM caserecord c
+        JOIN defendant d ON c.defendant_ID = d.defendant_ID
+        JOIN case_lawyer cl ON cl.case_ID = c.case_ID
+        JOIN lawyer l ON cl.lawyer_ID = l.lawyer_ID
+        ORDER BY c.case_ID DESC
+    ");
+    $cases = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    ($app->render)('standard', 'case_manage', ['cases' => $cases]);
     return;
+}
+
+if ($action === 'edit' && isset($_GET['id'])) {
+    $caseID = $_GET['id'];
+    preload_case_into_session($caseID);  // next step below
+    header("Location: " . BASE_URL . "/defendant/add");
+    exit;
+}
+
 // handles review and confirmed case
 if ($action === 'confirm') {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
