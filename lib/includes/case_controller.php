@@ -28,7 +28,7 @@ switch ($action) {
         }
         break;
     case 'success':
-        ($app->render)('standard', 'case_confirm');
+        ($app->render)('standard', 'case_wizard/case_confirm');
         break;
     default:
         http_response_code(404);
@@ -69,7 +69,7 @@ function handle_defendant_step($app) {
 
         // If action is not set or not recognized, render form with available defendants
         $defendants = (new Defendant())->all();
-        ($app->render)('standard', 'defendant_form', [
+        ($app->render)('standard', 'case_wizard/defendant_form', [
             'defendants' => $defendants,
         ]);
         return;
@@ -96,7 +96,7 @@ function handle_charge_step($app) {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             // Render charge form with current charges
             $charges = $_SESSION['case']['charges'];
-            ($app->render)('standard', 'charge_form', [
+            ($app->render)('standard', 'case_wizard/charge_form', [
                 'charges' => $charges
             ]);
             return;
@@ -166,7 +166,7 @@ function handle_lawyer_step($app) {
 
         // If action is not set or not recognized, render form with available defendants
         $lawyers = (new Lawyer())->all();
-        ($app->render)('standard', 'lawyer_form', [
+        ($app->render)('standard', 'case_wizard/lawyer_form', [
             'lawyers' => $lawyers
         ]);
         return;
@@ -193,7 +193,7 @@ function handle_event_step($app) {
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             // Render events form with current events
             $events = $_SESSION['case']['events'];
-            ($app->render)('standard', 'event_form', [
+            ($app->render)('standard', 'case_wizard/event_form', [
                 'events' => $events
             ]);
             return;
@@ -244,7 +244,7 @@ function show_case_review($app) {
     // Fetch lawyer
     $lawyer = fetch_by_id($db, 'lawyer', $case['lawyer_ID']);
 
-    ($app->render)('standard', 'confirm_view', [
+    ($app->render)('standard', 'case_wizard/confirm_view', [
         'case' => $case,
         'event' => $event,
         'defendant' => $defendant,
