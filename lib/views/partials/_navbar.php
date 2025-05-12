@@ -12,16 +12,13 @@
           <a class="nav-link" href="<?= BASE_URL ?>/dashboard">Dashboard</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="<?= BASE_URL ?>/cases">Cases</a>
+          <a class="nav-link" href="<?= BASE_URL ?>/cases">Manage Cases</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="<?= BASE_URL ?>/reports">Reports</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="<?= BASE_URL ?>/defendant/search">Search Defendants</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="<?= BASE_URL ?>/case/add">Add Information</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="<?= BASE_URL ?>/login">Login</a>
