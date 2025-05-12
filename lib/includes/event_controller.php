@@ -1,54 +1,117 @@
 <?php
 session_start();
+
 require_once __DIR__ . '/../models/CourtEvent.php';
 
-function handle_add_event($app) {
-    try {
-        // Initialize events session array if it doesn't exist
-        if (!isset($_SESSION['case']['events'])) {
-            $_SESSION['case']['events'] = [];
-        }
-
-        $description = trim($_POST['description'] ?? '');
-        $date        = trim($_POST['date'] ?? '');
-        $location    = trim($_POST['location'] ?? '');
-
-        // Only add if all fields are filled
-        if ($description !== '' && $date !== '' && $location !== '') {
-            $_SESSION['case']['events'][] = [
-                'description' => $description,
-                'date'        => $date,
-                'location'    => $location
-            ];
-        } elseif ($description !== '' || $date !== '' || $location !== '') {
-            throw new Exception("To add an event, you must complete description, date, and location.");
-        }
-
-        // Redirect based on which button was clicked
-        if (isset($_POST['add_more'])) {
-            header("Location: " . BASE_URL . "/event/add");
-        } else {
-            header("Location: " . BASE_URL . "/case/confirm");
-        }
+switch ($action) {
+    case 'edit':
+        edit_event($app, $eventID);
+        break;
+    case 'delete':
+        delete_event($app, $eventID);
+        break;
+    case 'add':
+        add_event($app);
+        break;
+    default:
+        http_response_code(405); 
+        echo "Method Not Allowed";
         exit;
-
-    } catch (Exception $e) {
-        http_response_code(400);
-        echo "Error: " . $e->getMessage();
-    }
 }
 
-// Handling the action for adding an event
-if ($action === 'add') {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        handle_add_event($app);
-    } else {
-        if (isset($_GET['success'])) {
-            ($app->set_message)('success', 'Event added successfully.');
-        }
-        ($app->render)('standard', 'event_form');
+
+function delete_event($app, $eventID) {
+    $caseID = $_GET['caseID'] ?? null;
+    if (!$caseID) {
+        http_response_code(400);
+        echo "Missing case ID.";
+        exit;
     }
-} else {
-    http_response_code(405); 
-    echo "Method Not Allowed";
+
+    CourtEvent::delete($eventID);
+
+    // Redirect back to edit case page
+    header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+    exit;
+}
+
+function edit_event($app, $eventID) {
+    $caseID = $_GET['caseID'] ?? null;
+    if (!$caseID) {
+        http_response_code(400);
+        echo "Missing case ID.";
+        exit;
+    }
+
+    $event = CourtEvent::getEventByEventID($eventID);
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Get form data
+        $location = $_POST['location'] ?? '';
+        $description = $_POST['description'] ?? '';
+        $date = $_POST['date'] ?? '';
+
+        // Server-side validation
+        if (empty($location) || empty($description) || empty($date)) {
+            // If not valid, simply skip the database update and redirect
+            header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+            exit;
+        }
+
+        // If validation passes, update the event
+        $data = [
+            'location' => $location,
+            'description' => $description,
+            'date' => $date
+        ];
+
+        CourtEvent::update($eventID, $data);
+
+        // Redirect to the case edit page after updating
+        header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+        exit;
+    }
+
+    // Render edit form with event data
+    ($app->render)('standard', 'forms/event_form', [
+        'event' => $event,
+        'isEdit' => true,  // Pass a flag to indicate this is an edit
+    ]);
+}
+
+function add_event($app) {
+    $caseID = $_GET['caseID'] ?? null;
+    if (!$caseID) {
+        http_response_code(400);
+        echo "Missing case ID.";
+        exit;
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $location = $_POST['location'] ?? '';
+        $description = $_POST['description'] ?? '';
+        $date = $_POST['date'] ?? '';
+
+        // Server-side validation
+        if (empty($location) || empty($description) || empty($date)) {
+            header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+            exit;
+        }
+
+        $data = [
+            'location' => $location,
+            'description' => $description,
+            'date' => $date
+        ];
+
+        CourtEvent::create($caseID, $data);
+
+        header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+        exit;
+    }
+
+    ($app->render)('standard', 'forms/event_form', [
+        'caseID' => $caseID,
+        'isEdit' => false, 
+    ]);
 }

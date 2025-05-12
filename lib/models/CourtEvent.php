@@ -19,4 +19,50 @@ class CourtEvent
             ':date'        => $data['date'] ?? null
         ]);
     }
+
+    public static function getEventsByCaseID($caseID)
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $stmt = $db->prepare("SELECT * FROM court_event WHERE case_ID = :caseID");
+        $stmt->execute([':caseID' => $caseID]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getEventByEventID($eventID)
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $stmt = $db->prepare("SELECT * FROM court_event WHERE Event_ID = :eventID");
+        $stmt->execute([':eventID' => $eventID]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    public static function delete($eventID) {
+        $db = Database::getInstance()->getConnection();
+    
+        $stmt = $db->prepare("DELETE FROM court_event WHERE Event_ID = :eventID");
+        $stmt->execute([':eventID' => $eventID]);
+    }
+    
+    public static function update($eventID, $data) {
+        $db = Database::getInstance()->getConnection();
+    
+        $stmt = $db->prepare("
+            UPDATE court_event
+            SET Location = :location, Description = :description, Date = :date
+            WHERE Event_ID = :eventID
+        ");
+    
+        $stmt->execute([
+            ':location' => $data['location'],
+            ':description' => $data['description'],
+            ':date'      => $data['date'],
+            ':eventID'   => $eventID
+        ]);
+    }    
+
 }

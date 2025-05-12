@@ -25,7 +25,7 @@
           </p>
         </div>
         <div class="col-md-4 text-end pe-4">
-          <a href="<?= BASE_URL ?>/case/add" class="btn btn-primary btn-lg">Add Case</a>
+          <a href="<?= BASE_URL ?>/case/defendant" class="btn btn-primary btn-lg">Add Case</a>
         </div>
       </div>
     </div>
