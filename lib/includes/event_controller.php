@@ -46,19 +46,33 @@ function edit_event($app, $eventID) {
     $event = CourtEvent::getEventByEventID($eventID);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Get form data
+        $location = $_POST['location'] ?? '';
+        $description = $_POST['description'] ?? '';
+        $date = $_POST['date'] ?? '';
+
+        // Server-side validation
+        if (empty($location) || empty($description) || empty($date)) {
+            // If not valid, simply skip the database update and redirect
+            header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+            exit;
+        }
+
+        // If validation passes, update the event
         $data = [
-            'location'=> $_POST['location'] ?? '',
-            'description' => $_POST['description'] ?? '',
-            'date' => $_POST['date'] ?? ''
+            'location' => $location,
+            'description' => $description,
+            'date' => $date
         ];
 
         CourtEvent::update($eventID, $data);
 
+        // Redirect to the case edit page after updating
         header("Location: " . BASE_URL . "/case/edit/" . $caseID);
         exit;
     }
 
-    // Render edit form with charge data
+    // Render edit form with event data
     ($app->render)('standard', 'forms/event_form', [
         'event' => $event,
         'isEdit' => true,  // Pass a flag to indicate this is an edit
@@ -74,10 +88,20 @@ function add_event($app) {
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $location = $_POST['location'] ?? '';
+        $description = $_POST['description'] ?? '';
+        $date = $_POST['date'] ?? '';
+
+        // Server-side validation
+        if (empty($location) || empty($description) || empty($date)) {
+            header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+            exit;
+        }
+
         $data = [
-            'location'=> $_POST['location'] ?? '',
-            'description' => $_POST['description'] ?? '',
-            'date' => $_POST['date'] ?? ''
+            'location' => $location,
+            'description' => $description,
+            'date' => $date
         ];
 
         CourtEvent::create($caseID, $data);
@@ -86,9 +110,8 @@ function add_event($app) {
         exit;
     }
 
-    // Render add form with no charge data
     ($app->render)('standard', 'forms/event_form', [
         'caseID' => $caseID,
-        'isEdit' => false,  // Pass a flag to indicate this is an add
+        'isEdit' => false, 
     ]);
 }

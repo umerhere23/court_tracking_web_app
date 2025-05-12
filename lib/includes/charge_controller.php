@@ -46,9 +46,18 @@ function edit_charge($app, $chargeID) {
     $charge = Charge::getChargeByChargeID($chargeID);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $description = $_POST['description'] ?? '';
+        $status = $_POST['status'] ?? '';
+
+        // Server-side validation
+        if (empty($description) || empty($status)) {
+            header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+            exit;
+        }
+
         $data = [
-            'description' => $_POST['description'] ?? '',
-            'status' => $_POST['status'] ?? ''
+            'description' => $description,
+            'status' => $status
         ];
 
         Charge::update($chargeID, $data);
@@ -57,10 +66,9 @@ function edit_charge($app, $chargeID) {
         exit;
     }
 
-    // Render edit form with charge data
     ($app->render)('standard', 'forms/charge_form', [
         'charge' => $charge,
-        'isEdit' => true,  // Pass a flag to indicate this is an edit
+        'isEdit' => true, 
     ]);
 }
 
@@ -73,20 +81,29 @@ function add_charge($app) {
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $description = $_POST['description'] ?? '';
+        $status = $_POST['status'] ?? '';
+
+        // Server-side validation
+        if (empty($description) || empty($status)) {
+            header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+            exit;
+        }
+
         $data = [
-            'description' => $_POST['description'] ?? '',
-            'status' => $_POST['status'] ?? ''
+            'description' => $description,
+            'status' => $status
         ];
 
         Charge::create($caseID, $data);
 
+        // Redirect to the case edit page after adding the charge
         header("Location: " . BASE_URL . "/case/edit/" . $caseID);
         exit;
     }
 
-    // Render add form with no charge data
     ($app->render)('standard', 'forms/charge_form', [
         'caseID' => $caseID,
-        'isEdit' => false,  // Pass a flag to indicate this is an add
+        'isEdit' => false, 
     ]);
 }
