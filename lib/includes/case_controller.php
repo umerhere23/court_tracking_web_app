@@ -78,14 +78,12 @@ function show_review_page($app) {
     ]);
 }
 
-
 function handle_confirm_case($app) {
-
     $data = $_SESSION['case'] ?? [];
     $event = $_SESSION['event'] ?? [];
 
-    // ensure we can link to all dependent entities
-    if (empty($data['defendant_ID']) || empty($data['charge_description']) || empty($data['lawyer_ID'])) {
+    // Check required fields
+    if (empty($data['defendant_ID']) || empty($data['charges']) || empty($data['lawyer_ID'])) {
         http_response_code(400);
         echo "Missing required data in session. Please complete all steps.";
         return;
@@ -101,24 +99,27 @@ function handle_confirm_case($app) {
         $stmt->execute([$data['defendant_ID']]);
         $caseID = $db->lastInsertId();
 
-        // 2. Add Charge
-        Charge::create($caseID, [
-            'description' => $data['charge_description'],
-            'status'      => $data['charge_status'] ?? ''
-        ]);
+        // 2. Add All Charges
+        foreach ($data['charges'] as $charge) {
+            Charge::create($caseID, [
+                'description' => $charge['description'],
+                'status'      => $charge['status'] ?? ''
+            ]);
+        }
 
         // 3. Link Lawyer
         $stmt = $db->prepare("INSERT INTO case_lawyer (case_ID, lawyer_ID) VALUES (?, ?)");
         $stmt->execute([$caseID, $data['lawyer_ID']]);
 
-        // 4. Add Court Event (optional)
-        if (!empty($data['event_description']) || !empty($data['event_date']) || !empty($data['event_location'])) {
-            CourtEvent::create($caseID, [
-                'description' => $data['event_description'],
-                'date'        => $data['event_date'],
-                'location'    => $data['event_location']
-            ]);
+        /// 4. Add Court Events (optional)
+        if (!empty($data['events'])) {
+            foreach ($data['events'] as $event) {
+                if (!empty($event['description']) || !empty($event['date']) || !empty($event['location'])) {
+                    CourtEvent::create($caseID, $event);
+                }
+            }
         }
+
 
         $db->commit();
         unset($_SESSION['case']);

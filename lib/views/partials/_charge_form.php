@@ -1,6 +1,6 @@
 <div class="mb-3">
   <label class="form-label">Charge Description</label>
-  <input type="text" class="form-control" name="description" required>
+  <input type="text" class="form-control" name="description">
 </div>
 
 <div class="mb-3">
