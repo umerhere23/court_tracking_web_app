@@ -21,18 +21,13 @@ function handle_add_event($app) {
                 'location'    => $location
             ];
         } elseif ($description !== '' || $date !== '' || $location !== '') {
-            // Partial input detected — reject and show message
             throw new Exception("To add an event, you must complete description, date, and location.");
         }
 
-
-
         // Redirect based on which button was clicked
         if (isset($_POST['add_more'])) {
-            // User clicked "Add Another Event", stay on the same page
             header("Location: " . BASE_URL . "/event/add");
         } else {
-            // User clicked "Confirm and Submit Case", proceed to confirmation page
             header("Location: " . BASE_URL . "/case/confirm");
         }
         exit;

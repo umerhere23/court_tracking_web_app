@@ -7,6 +7,9 @@ function handle_add_lawyer($app) {
     try {
         if ($_POST['action'] === 'add_new') {
             // assign existing lawyer to case
+            if (empty($_POST['name'])) {
+                throw new Exception("Lawyer's name is required.");
+            }
             $lawyerID = Lawyer::create($_POST);
         } elseif ($_POST['action'] === 'select_existing' && !empty($_POST['lawyer_ID'])) {
             // create new lawyer
@@ -16,8 +19,19 @@ function handle_add_lawyer($app) {
         }
 
         $_SESSION['case']['lawyer_ID'] = $lawyerID;
-        header("Location: " . BASE_URL . "/event/add");
-        exit;
+
+        if ($_POST['action'] === 'select_existing') {
+            header("Location: " . BASE_URL . "/event/add");
+            exit;
+        }
+
+        // Otherwise, reload current page with updated list and selection
+        $lawyers = (new Lawyer())->all();
+        ($app->render)('standard', 'lawyer_form', [
+            'lawyers' => $lawyers,
+            'success' => 'Lawyer added successfully.'
+        ]);
+        return;
 
     } catch (Exception $e) {
         http_response_code(400);

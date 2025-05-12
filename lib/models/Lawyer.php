@@ -20,7 +20,7 @@ class Lawyer
         ");
 
         $stmt->execute([
-            ':name'  => $data['name'] ?? '',
+            ':name'  => $data['name'],
             ':email' => $data['email'] ?? '',
             ':phone' => $data['phone'] ?? '',
             ':firm'  => $data['firm'] ?? ''
