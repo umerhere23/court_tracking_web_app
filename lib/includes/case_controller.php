@@ -7,92 +7,242 @@ require_once __DIR__ . '/../models/CaseRecord.php';
 require_once __DIR__ . '/../models/Charge.php';
 require_once __DIR__ . '/../models/CourtEvent.php';
 
-// Start wizard from /case/add
-if ($action === 'add') {
-    header("Location: " . BASE_URL . "/defendant/add");
-    exit;
+switch ($action) {
+    case 'defendant':
+        handle_defendant_step($app);
+        break;
+    case 'charges':
+        handle_charge_step($app);
+        break;
+    case 'lawyer':
+        handle_lawyer_step($app);
+        break;
+    case 'events':
+        handle_event_step($app);
+        break;
+    case 'confirm':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            handle_confirm_step($app);
+        } else {
+            show_case_review($app);
+        }
+        break;
+    case 'success':
+        ($app->render)('standard', 'case_confirm');
+        break;
+    default:
+        http_response_code(404);
+        echo "Invalid wizard step.";
+        exit;
 }
 
-// Route to entity controllers for each step
-if (strpos($action, 'add/') === 0) {
-    $step = explode('/', $action)[1];
+function handle_defendant_step($app) {
+    try {
+        // Get action from POST
+        $action = $_POST['action'] ?? null;
+        $defendantID = null; // Initialize the defendant ID variable
 
-    switch ($step) {
-        case 'defendant':
-            require __DIR__ . '/defendant_controller.php';
-            break;
-        case 'charge':
-            require __DIR__ . '/charge_controller.php';
-            break;
-        case 'lawyer':
-            require __DIR__ . '/lawyer_controller.php';
-            break;
-        case 'event':
-            require __DIR__ . '/event_controller.php'; 
-            break;
-        default: // deal with erroneous steps
-            http_response_code(404);
-            echo "Invalid step.";
+        // Handle 'add_new' action
+        if ($action === 'add_new') {
+            if (empty($_POST['name']) || empty($_POST['dob'])) {
+                throw new Exception("Defendant's name and DOB are required.");
+            }
+            // Create new defendant and get the defendant ID
+            $defendantID = Defendant::create($_POST);
+            $_SESSION['case']['defendant_ID'] = $defendantID; // Store in session
+
+            // Set success message and redirect to defendent step
+            $successMessage = urlencode('Defendant added successfully.');
+            header("Location: " . BASE_URL . "/case/defendant?success={$successMessage}");
+            exit;
+        }
+
+        // Handle 'select_existing' action
+        if ($action === 'select_existing' && !empty($_POST['defendant_ID'])) {
+            $defendantID = $_POST['defendant_ID'];
+            $_SESSION['case']['defendant_ID'] = $defendantID; // Store in session
+
+            // Redirect to charges step
+            header("Location: " . BASE_URL . "/case/charges");
+            exit;
+        }
+
+        // If action is not set or not recognized, render form with available defendants
+        $defendants = (new Defendant())->all();
+        ($app->render)('standard', 'defendant_form', [
+            'defendants' => $defendants,
+        ]);
+        return;
+
+    } catch (Exception $e) {
+        // Handle validation exceptions
+        http_response_code(400);
+        echo "Error: " . $e->getMessage();
+    } catch (PDOException $e) {
+        // Handle database exceptions
+        http_response_code(500);
+        echo "Database error: " . $e->getMessage();
     }
-
-    return;
 }
 
-// to manage an existing case
-if ($action === 'manage') {
-    $db = Database::getInstance()->getConnection();
-    $stmt = $db->query("
-        SELECT c.case_ID, d.Name AS defendant, l.Name AS lawyer
-        FROM caserecord c
-        JOIN defendant d ON c.defendant_ID = d.defendant_ID
-        JOIN case_lawyer cl ON cl.case_ID = c.case_ID
-        JOIN lawyer l ON cl.lawyer_ID = l.lawyer_ID
-        ORDER BY c.case_ID DESC
-    ");
-    $cases = $stmt->fetchAll(PDO::FETCH_ASSOC);
+function handle_charge_step($app) {
+    try {
+        // Initialize charges session array if it doesn't exist
+        if (!isset($_SESSION['case']['charges'])) {
+            $_SESSION['case']['charges'] = [];
+        }
 
-    ($app->render)('standard', 'case_manage', ['cases' => $cases]);
-    return;
-}
+        // If it's a GET request, just render the charge form
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            // Render charge form with current charges
+            $charges = $_SESSION['case']['charges'];
+            ($app->render)('standard', 'charge_form', [
+                'charges' => $charges
+            ]);
+            return;
+        }
 
-if ($action === 'edit' && isset($_GET['id'])) {
-    $caseID = $_GET['id'];
-    preload_case_into_session($caseID);  // next step below
-    header("Location: " . BASE_URL . "/defendant/add");
-    exit;
-}
+        // If it's a POST request, handle the charge form submission
+        $description = trim($_POST['description'] ?? '');
+        $status = $_POST['status'] ?? '';
 
-// handles review and confirmed case
-if ($action === 'confirm') {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        handle_confirm_case($app);
-    } else {
-        show_review_page($app);
+        // Handle new charge input
+        if ($description !== '') {
+            $_SESSION['case']['charges'][] = [
+                'description' => $description,
+                'status' => $status
+            ];
+        }
+
+        // If the user hasn't added any charge and tries to proceed, throw an exception
+        if (!isset($_POST['add_more']) && count($_SESSION['case']['charges']) === 0) {
+            throw new Exception("You must add at least one charge before continuing.");
+        }
+
+        // Redirect based on button clicked (add more or proceed)
+        if (isset($_POST['add_more'])) {
+            header("Location: " . BASE_URL . "/case/charges");
+        } else {
+            header("Location: " . BASE_URL . "/case/lawyer");
+        }
+        exit;
+
+    } catch (Exception $e) {
+        http_response_code(400);
+        echo "Error: " . $e->getMessage();
     }
-    exit;
 }
 
-// show success message
-if ($action === 'confirm_case') {
-    ($app->render)('standard', 'case_confirm');
-    return;
+function handle_lawyer_step($app) {
+    try {
+        // Get action from POST
+        $action = $_POST['action'] ?? null;
+        $lawyerID = null; // Initialize the lawyer ID variable
+
+        // Handle 'add_new' action
+        if ($action === 'add_new') {
+            if (empty($_POST['name'])) {
+                throw new Exception("Lawyer's name is required.");
+            }
+            // Create new defendant and get the defendant ID
+            $lawyerID = Lawyer::create($_POST);
+            $_SESSION['case']['lawyer_ID'] = $lawyerID; // Store in session
+
+            // Set success message and redirect to lawyer step
+            $successMessage = urlencode('Lawyer added successfully.');
+            header("Location: " . BASE_URL . "/case/lawyer?success={$successMessage}");
+            exit;
+        }
+
+        // Handle 'select_existing' action
+        if ($action === 'select_existing' && !empty($_POST['lawyer_ID'])) {
+            $lawyerID = $_POST['lawyer_ID'];
+            $_SESSION['case']['lawyer_ID'] = $lawyerID; // Store in session
+
+            // Redirect to events step
+            header("Location: " . BASE_URL . "/case/events");
+            exit;
+        }
+
+        // If action is not set or not recognized, render form with available defendants
+        $lawyers = (new Lawyer())->all();
+        ($app->render)('standard', 'lawyer_form', [
+            'lawyers' => $lawyers
+        ]);
+        return;
+
+    } catch (Exception $e) {
+        // Handle validation exceptions
+        http_response_code(400);
+        echo "Error: " . $e->getMessage();
+    } catch (PDOException $e) {
+        // Handle database exceptions
+        http_response_code(500);
+        echo "Database error: " . $e->getMessage();
+    }
 }
 
-function show_review_page($app) {
+function handle_event_step($app) {
+    try {
+        // Initialize events session array if it doesn't exist
+        if (!isset($_SESSION['case']['events'])) {
+            $_SESSION['case']['events'] = [];
+        }
+
+        // If it's a GET request, just render the events form
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            // Render events form with current events
+            $events = $_SESSION['case']['events'];
+            ($app->render)('standard', 'event_form', [
+                'events' => $events
+            ]);
+            return;
+        }
+
+        // If it's a POST request, handle the event form submission
+        $description = trim($_POST['description'] ?? '');
+        $date = trim($_POST['date'] ?? '');
+        $location = trim($_POST['location'] ?? '');
+
+        // Validate input
+        if ($description !== '' && $date !== '' && $location !== '') {
+            $_SESSION['case']['events'][] = [
+                'description' => $description,
+                'date' => $date,
+                'location' => $location
+            ];
+        } elseif ($description !== '' || $date !== '' || $location !== '') {
+            // Handle incomplete event data
+            throw new Exception("To add an event, you must complete description, date, and location.");
+        }
+
+        // Redirect based on button clicked
+        if (isset($_POST['add_more'])) {
+            header("Location: " . BASE_URL . "/case/events");
+            exit;
+        } else {
+            // Proceed to confirmation step if no "add more"
+            header("Location: " . BASE_URL . "/case/confirm");
+            exit;
+        }
+
+    } catch (Exception $e) {
+        http_response_code(400);
+        echo "Error: " . $e->getMessage();
+    }
+}
+
+function show_case_review($app) {
     $case = $_SESSION['case'] ?? [];
     $event = $_SESSION['event'] ?? [];
 
     $db = Database::getInstance()->getConnection();
 
     // Fetch defendant
-    $stmt = $db->prepare("SELECT * FROM defendant WHERE defendant_ID = ?");
-    $stmt->execute([$case['defendant_ID']]);
-    $defendant = $stmt->fetch(PDO::FETCH_ASSOC);
-
+    $defendant = fetch_by_id($db, 'defendant', $case['defendant_ID']);
+    
     // Fetch lawyer
-    $stmt = $db->prepare("SELECT * FROM lawyer WHERE lawyer_ID = ?");
-    $stmt->execute([$case['lawyer_ID']]);
-    $lawyer = $stmt->fetch(PDO::FETCH_ASSOC);
+    $lawyer = fetch_by_id($db, 'lawyer', $case['lawyer_ID']);
 
     ($app->render)('standard', 'confirm_view', [
         'case' => $case,
@@ -102,7 +252,7 @@ function show_review_page($app) {
     ]);
 }
 
-function handle_confirm_case($app) {
+function handle_confirm_step($app) {
     $data = $_SESSION['case'] ?? [];
     $event = $_SESSION['event'] ?? [];
 
@@ -118,44 +268,60 @@ function handle_confirm_case($app) {
     try {
         $db->beginTransaction();
 
-        // 1. Create Case
-        $stmt = $db->prepare("INSERT INTO caserecord (defendant_ID) VALUES (?)");
-        $stmt->execute([$data['defendant_ID']]);
-        $caseID = $db->lastInsertId();
-
+        // 1. Create Case Record
+        $caseID = insert_case_record($db, $data['defendant_ID']);
+        
         // 2. Add All Charges
-        foreach ($data['charges'] as $charge) {
-            Charge::create($caseID, [
-                'description' => $charge['description'],
-                'status'      => $charge['status'] ?? ''
-            ]);
-        }
-
+        insert_case_charges($db, $caseID, $data['charges']);
+        
         // 3. Link Lawyer
-        $stmt = $db->prepare("INSERT INTO case_lawyer (case_ID, lawyer_ID) VALUES (?, ?)");
-        $stmt->execute([$caseID, $data['lawyer_ID']]);
-
-        /// 4. Add Court Events (optional)
-        if (!empty($data['events'])) {
-            foreach ($data['events'] as $event) {
-                if (!empty($event['description']) || !empty($event['date']) || !empty($event['location'])) {
-                    CourtEvent::create($caseID, $event);
-                }
-            }
-        }
-
+        link_case_lawyer($db, $caseID, $data['lawyer_ID']);
+        
+        // 4. Add Court Events (optional)
+        insert_case_events($db, $caseID, $data['events']);
 
         $db->commit();
         unset($_SESSION['case']);
         unset($_SESSION['event']);
 
         ($app->set_message)('success', 'Case added successfully.');
-        header("Location: " . BASE_URL . "/case/confirm_case");
+        header("Location: " . BASE_URL . "/case/success");
         exit;
 
     } catch (PDOException $e) {
         $db->rollBack();
         http_response_code(500);
         echo "Database error: " . $e->getMessage();
+    }
+}
+
+function fetch_by_id($db, $table, $id) {
+    $stmt = $db->prepare("SELECT * FROM $table WHERE {$table}_ID = ?");
+    $stmt->execute([$id]);
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function insert_case_record($db, $defendantID) {
+    $stmt = $db->prepare("INSERT INTO caserecord (defendant_ID) VALUES (?)");
+    $stmt->execute([$defendantID]);
+    return $db->lastInsertId();
+}
+
+function insert_case_charges($db, $caseID, $charges) {
+    foreach ($charges as $charge) {
+        Charge::create($caseID, $charge);
+    }
+}
+
+function link_case_lawyer($db, $caseID, $lawyerID) {
+    $stmt = $db->prepare("INSERT INTO case_lawyer (case_ID, lawyer_ID) VALUES (?, ?)");
+    $stmt->execute([$caseID, $lawyerID]);
+}
+
+function insert_case_events($db, $caseID, $events) {
+    foreach ($events as $event) {
+        if (!empty($event['description']) || !empty($event['date']) || !empty($event['location'])) {
+            CourtEvent::create($caseID, $event);
+        }
     }
 }

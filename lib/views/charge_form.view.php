@@ -1,6 +1,6 @@
 <h2>Enter Charge Information</h2>
 
-<form method="POST" action="<?= BASE_URL ?>/charge/add">
+<form method="POST" action="<?= BASE_URL ?>/case/charges">
   <?php require PARTIALS . '/_charge_form.php'; ?>
 
   <!-- Display the charges already added -->
