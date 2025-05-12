@@ -38,6 +38,7 @@ if (strpos($action, 'add/') === 0) {
     return;
 }
 
+    return;
 // handles review and confirmed case
 if ($action === 'confirm') {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
