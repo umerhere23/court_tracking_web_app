@@ -24,7 +24,7 @@ path('/charge/{action}', function($app, $action) {
     require_once __DIR__ . '/../lib/includes/charge_controller.php';
 });
 
-path('/charge/{action}/{id}', function($app, $action, $caseID) {
+path('/charge/{action}/{id}', function($app, $action, $chargeID) {
     require_once __DIR__ . '/../lib/includes/charge_controller.php';
 });
 
@@ -36,7 +36,7 @@ path('/event/{action}', function($app, $action) {
     require_once __DIR__ . '/../lib/includes/event_controller.php';
 });
 
-path('/event/{action}/{id}', function($app, $action, $caseID) {
+path('/event/{action}/{id}', function($app, $action, $eventID) {
     require_once __DIR__ . '/../lib/includes/event_controller.php';
 });
 

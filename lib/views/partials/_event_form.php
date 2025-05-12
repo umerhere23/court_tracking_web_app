@@ -1,8 +1,25 @@
 <div class="mb-3">
-    <input type="text" class="form-control mb-2" name="description" placeholder="Event Description"
-           value="<?= htmlspecialchars($prefill['event_description'] ?? '') ?>">
-    <input type="date" class="form-control mb-2" name="date"
-           value="<?= htmlspecialchars($prefill['event_date'] ?? '') ?>">
-    <input type="text" class="form-control mb-3" name="location" placeholder="Event Location"
-           value="<?= htmlspecialchars($prefill['event_location'] ?? '') ?>">
+  <label class="form-label">Event Description</label>
+  <input 
+    type="text" 
+    class="form-control" 
+    name="description" 
+    value="<?= htmlspecialchars($event[0]["Description"]?? '') ?>"
+    >
+
+    <label class="form-label">Event Date</label>
+  <input 
+    type="date" 
+    class="form-control" 
+    name="date" 
+    value="<?= htmlspecialchars($event[0]["Date"]?? '') ?>"
+    >
+
+    <label class="form-label">Event Location</label>
+  <input 
+    type="text" 
+    class="form-control" 
+    name="location" 
+    value="<?= htmlspecialchars($event[0]["Location"]?? '') ?>"
+    >
 </div>

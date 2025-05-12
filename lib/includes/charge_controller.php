@@ -5,10 +5,10 @@ require_once __DIR__ . '/../models/Charge.php';
 
 switch ($action) {
     case 'edit':
-        edit_charge($app, $caseID);
+        edit_charge($app, $chargeID);
         break;
     case 'delete':
-        delete_charge($app, $caseID);
+        delete_charge($app, $chargeID);
         break;
     case 'add':
         add_charge($app);
@@ -57,9 +57,10 @@ function edit_charge($app, $chargeID) {
         exit;
     }
 
-    // Render edit form
-    ($app->render)('standard', 'edit_charge', [
+    // Render edit form with charge data
+    ($app->render)('standard', 'forms/charge_form', [
         'charge' => $charge,
+        'isEdit' => true,  // Pass a flag to indicate this is an edit
     ]);
 }
 
@@ -83,8 +84,9 @@ function add_charge($app) {
         exit;
     }
 
-    // Render add form
-    ($app->render)('standard', 'add_charge', [
-        'caseID' => $caseID
+    // Render add form with no charge data
+    ($app->render)('standard', 'forms/charge_form', [
+        'caseID' => $caseID,
+        'isEdit' => false,  // Pass a flag to indicate this is an add
     ]);
 }
