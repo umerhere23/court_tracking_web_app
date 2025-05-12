@@ -1,13 +1,24 @@
 <div class="mb-3">
   <label class="form-label">Charge Description</label>
-  <input type="text" class="form-control" name="description">
+  <input 
+    type="text" 
+    class="form-control" 
+    name="description" 
+    value="<?= htmlspecialchars($charge[0]["Description"]?? '') ?>"
+    >
 </div>
 
 <div class="mb-3">
   <label class="form-label">Status</label>
   <select class="form-select" name="status">
-    <option value="Pending">Pending</option>
-    <option value="Resolved">Resolved</option>
-    <option value="Dismissed">Dismissed</option>
+    <?php
+      $statuses = ['Pending', 'Resolved', 'Dismissed'];
+      $currentStatus = $charge[0]['Status'] ?? '';
+      foreach ($statuses as $status):
+    ?>
+      <option value="<?= $status ?>" <?= ($status === $currentStatus) ? 'selected' : '' ?>>
+        <?= $status ?>
+      </option>
+    <?php endforeach; ?>
   </select>
 </div>

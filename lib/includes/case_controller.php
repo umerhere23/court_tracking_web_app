@@ -30,6 +30,15 @@ switch ($action) {
     case 'success':
         ($app->render)('standard', 'case_wizard/case_confirm');
         break;
+    case 'manage':
+        show_manage_cases($app);
+        break;
+    case 'edit':
+        edit_case($app, $caseID);
+        break;
+    case 'delete':
+        delete_case($app, $caseID);
+        break;
     default:
         http_response_code(404);
         echo "Invalid wizard step.";
@@ -324,4 +333,34 @@ function insert_case_events($db, $caseID, $events) {
             CourtEvent::create($caseID, $event);
         }
     }
+}
+
+function show_manage_cases($app) {
+
+    $cases = CaseRecord::getAllCasesWithDetails();
+
+    ($app->render)('standard', 'all_cases', [
+        'cases' => $cases
+    ]);
+}
+
+function delete_case($app, $caseID) {
+    try {
+        CaseRecord::deleteCaseByID($caseID);
+        show_manage_cases($app);
+    } catch (Exception $e) {
+        http_response_code(400);
+        echo $e->getMessage();
+    }
+}
+
+function edit_case($app, $caseID) {
+    $charges = Charge::getChargesByCaseID($caseID);
+    $events = CourtEvent::getEventsByCaseID($caseID);
+
+    ($app->render)('standard', 'edit_case', [
+        'caseID'  => $caseID,
+        'charges' => $charges,
+        'events'  => $events
+    ]);
 }

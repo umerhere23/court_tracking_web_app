@@ -19,4 +19,15 @@ class CourtEvent
             ':date'        => $data['date'] ?? null
         ]);
     }
+
+    public static function getEventsByCaseID($caseID)
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $stmt = $db->prepare("SELECT * FROM court_event WHERE case_ID = :caseID");
+        $stmt->execute([':caseID' => $caseID]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }
