@@ -15,6 +15,10 @@ path('/cases', function($app) {
     ($app->render)('standard', 'manage_cases');
 });
 
+path('/defendants', function($app) {
+    ($app->render)('standard', 'manage_defendants');
+});
+
 // DATABASE REQUESTS
 path('/defendant/{action}', function($app, $action) {
     require_once __DIR__ . '/../lib/includes/defendant_controller.php';
