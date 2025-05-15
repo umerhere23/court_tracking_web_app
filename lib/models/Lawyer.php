@@ -35,4 +35,60 @@ class Lawyer
         $stmt = $this->db->query("SELECT lawyer_ID, Name FROM lawyer ORDER BY Name ASC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }    
+
+
+    public static function getAllLawyersWithDetails()
+    // returns lawyer_ID and lawyer_name for all_lawyers page
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $stmt = $db->query("
+            SELECT lawyer_ID, Name AS lawyer_name
+            FROM Lawyer
+        ");
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getLawyerByLawyerID($lawyerID)
+    // returns lawyer entity for edit functionality
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $stmt = $db->prepare("SELECT * FROM Lawyer WHERE lawyer_ID = :lawyerID");
+        $stmt->execute([':lawyerID' => $lawyerID]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function update($lawyerID, $data) {
+        // updates database based on $data
+        $db = Database::getInstance()->getConnection();
+    
+        $stmt = $db->prepare("
+            UPDATE lawyer
+            SET
+                Name = :Name,
+                Email = :Email,
+                Phone_Number = :Phone_Number,
+                Firm = :Firm
+            WHERE lawyer_ID = :lawyer_ID
+        ");
+    
+        $stmt->execute([
+            ':Name'                 => $data['name'],
+            ':Email'              => $data['email'] ?? '',
+            ':Phone_Number'         => $data['phone'] ?? '',
+            ':Firm'                => $data['firm'] ?? '',
+            ':lawyer_ID'  => $lawyerID,
+        ]);
+    }    
+
+    public static function delete($lawyerID) {
+        // permanently deletes lawyer associated with $lawyerID from database
+        $db = Database::getInstance()->getConnection();
+    
+        $stmt = $db->prepare("DELETE FROM lawyer WHERE lawyer_ID = :lawyer_ID");
+        $stmt->execute([':lawyer_ID' => $lawyerID]);
+    }
 }

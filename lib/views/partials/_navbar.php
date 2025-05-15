@@ -18,6 +18,9 @@
           <a class="nav-link" href="<?= BASE_URL ?>/defendants">Manage Defendants</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="<?= BASE_URL ?>/lawyers">Manage Lawyers</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="<?= BASE_URL ?>/reports">Reports</a>
         </li>
         <li class="nav-item">

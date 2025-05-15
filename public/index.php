@@ -12,11 +12,15 @@ get('/', function($app) {
 });
 
 path('/cases', function($app) {
-    ($app->render)('standard', 'manage_cases');
+    ($app->render)('standard', 'manage_entities/manage_cases');
 });
 
 path('/defendants', function($app) {
-    ($app->render)('standard', 'manage_defendants');
+    ($app->render)('standard', 'manage_entities/manage_defendants');
+});
+
+path('/lawyers', function($app) {
+    ($app->render)('standard', 'manage_entities/manage_lawyers');
 });
 
 // DATABASE REQUESTS

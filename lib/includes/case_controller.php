@@ -357,7 +357,7 @@ function edit_case($app, $caseID) {
     $charges = Charge::getChargesByCaseID($caseID);
     $events = CourtEvent::getEventsByCaseID($caseID);
 
-    ($app->render)('standard', 'edit_case', [
+    ($app->render)('standard', 'forms/edit_case', [
         'caseID'  => $caseID,
         'charges' => $charges,
         'events'  => $events
