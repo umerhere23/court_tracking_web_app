@@ -3,8 +3,6 @@ session_start();
 
 require_once __DIR__ . '/../models/Defendant.php';
 
-
-
 switch ($action) {
     case 'edit':
         edit_defendant($app, $defendantID);
@@ -58,7 +56,8 @@ function add_defendant($app) {
         }
 
         if (empty($data['name']) || empty($data['dob'])) {
-            header("Location: " . BASE_URL . "/defendant/edit/" . $defendantID);
+            $failMessage = urlencode('Defendant NOT added. Error with input.');
+            header("Location: " . BASE_URL . "/defendants?success={$failMessage}");
             exit;
         }
 

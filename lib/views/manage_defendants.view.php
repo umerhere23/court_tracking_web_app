@@ -16,7 +16,7 @@
           </p>
         </div>
         <div class="col-md-4 text-end pe-4">
-          <a href="<?= BASE_URL ?>/case/manage" class="btn btn-outline-primary btn-lg">Manage Defendants</a>
+          <a href="<?= BASE_URL ?>/defendant/manage" class="btn btn-outline-primary btn-lg">Manage Defendants</a>
         </div>
       </div>
     </div>

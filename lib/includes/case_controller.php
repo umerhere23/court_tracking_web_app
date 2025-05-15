@@ -338,7 +338,7 @@ function show_manage_cases($app) {
 
     $cases = CaseRecord::getAllCasesWithDetails();
 
-    ($app->render)('standard', 'all_cases', [
+    ($app->render)('standard', 'all_entities/all_cases', [
         'cases' => $cases
     ]);
 }
