@@ -76,4 +76,59 @@ class Defendant
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public static function getAllDefendantsWithDetails()
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $stmt = $db->query("
+            SELECT defendant_ID, Name AS defendant_name, Date_Of_Birth AS defendant_DOB
+            FROM Defendant
+        ");
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getDefendantByDefendantID($defendantID)
+    {
+        $db = Database::getInstance()->getConnection();
+
+        $stmt = $db->prepare("SELECT * FROM Defendant WHERE defendant_ID = :defendantID");
+        $stmt->execute([':defendantID' => $defendantID]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function update($defendantID, $data) {
+        $db = Database::getInstance()->getConnection();
+    
+        $stmt = $db->prepare("
+            UPDATE defendant
+            SET
+                Name = :Name,
+                Date_of_Birth = :Date_of_Birth,
+                Address = :Address,
+                Ethnicity = :Ethnicity,
+                Phone_Number = :Phone_Number,
+                Email = :Email
+            WHERE defendant_ID = :defendant_ID
+        ");
+    
+        $stmt->execute([
+            ':Name'                 => $data['name'],
+            ':Date_of_Birth'        => $data['dob'],
+            ':Address'              => $data['address'] ?? '',
+            ':Ethnicity'            => $data['ethnicity'] ?? '',
+            ':Phone_Number'         => $data['phone'] ?? '',
+            ':Email'                => $data['email'] ?? '',
+            ':defendant_ID'  => $defendantID,
+        ]);
+    }    
+
+    public static function delete($defendantID) {
+        $db = Database::getInstance()->getConnection();
+    
+        $stmt = $db->prepare("DELETE FROM defendant WHERE defendant_ID = :defendant_ID");
+        $stmt->execute([':defendant_ID' => $defendantID]);
+    }
 }

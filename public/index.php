@@ -24,6 +24,10 @@ path('/defendant/{action}', function($app, $action) {
     require_once __DIR__ . '/../lib/includes/defendant_controller.php';
 });
 
+path('/defendant/{action}/{id}', function($app, $action, $defendantID) {
+    require_once __DIR__ . '/../lib/includes/defendant_controller.php';
+});
+
 path('/charge/{action}', function($app, $action) {
     require_once __DIR__ . '/../lib/includes/charge_controller.php';
 });
@@ -33,6 +37,10 @@ path('/charge/{action}/{id}', function($app, $action, $chargeID) {
 });
 
 path('/lawyer/{action}', function($app, $action) {
+    require_once __DIR__ . '/../lib/includes/lawyer_controller.php';
+});
+
+path('/lawyer/{action}/{id}', function($app, $action, $lawyerID) {
     require_once __DIR__ . '/../lib/includes/lawyer_controller.php';
 });
 

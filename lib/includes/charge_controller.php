@@ -19,8 +19,7 @@ switch ($action) {
         exit;
 }
 
-
-function delete_charge($app, $chargeID) {
+function add_charge($app) {
     $caseID = $_GET['caseID'] ?? null;
     if (!$caseID) {
         http_response_code(400);
@@ -28,11 +27,32 @@ function delete_charge($app, $chargeID) {
         exit;
     }
 
-    Charge::delete($chargeID);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $description = $_POST['description'] ?? '';
+        $status = $_POST['status'] ?? '';
 
-    // Redirect back to edit case page
-    header("Location: " . BASE_URL . "/case/edit/" . $caseID);
-    exit;
+        // Server-side validation
+        if (empty($description) || empty($status)) {
+            header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+            exit;
+        }
+
+        $data = [
+            'description' => $description,
+            'status' => $status
+        ];
+
+        Charge::create($caseID, $data);
+
+        // Redirect to the case edit page after adding the charge
+        header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+        exit;
+    }
+
+    ($app->render)('standard', 'forms/charge_form', [
+        'caseID' => $caseID,
+        'isEdit' => false, 
+    ]);
 }
 
 function edit_charge($app, $chargeID) {
@@ -72,7 +92,7 @@ function edit_charge($app, $chargeID) {
     ]);
 }
 
-function add_charge($app) {
+function delete_charge($app, $chargeID) {
     $caseID = $_GET['caseID'] ?? null;
     if (!$caseID) {
         http_response_code(400);
@@ -80,30 +100,9 @@ function add_charge($app) {
         exit;
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $description = $_POST['description'] ?? '';
-        $status = $_POST['status'] ?? '';
+    Charge::delete($chargeID);
 
-        // Server-side validation
-        if (empty($description) || empty($status)) {
-            header("Location: " . BASE_URL . "/case/edit/" . $caseID);
-            exit;
-        }
-
-        $data = [
-            'description' => $description,
-            'status' => $status
-        ];
-
-        Charge::create($caseID, $data);
-
-        // Redirect to the case edit page after adding the charge
-        header("Location: " . BASE_URL . "/case/edit/" . $caseID);
-        exit;
-    }
-
-    ($app->render)('standard', 'forms/charge_form', [
-        'caseID' => $caseID,
-        'isEdit' => false, 
-    ]);
+    // Redirect back to edit case page
+    header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+    exit;
 }
