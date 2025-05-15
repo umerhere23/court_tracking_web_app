@@ -65,8 +65,8 @@ function add_defendant($app) {
         Defendant::create($data);
 
         // Redirect to the case edit page after adding the charge
-        ($app->set_message)('success', 'Defendant added successfully.');
-        header("Location: " . BASE_URL . "/defendants/");
+        $successMessage = urlencode('Defendant added successfully.');
+        header("Location: " . BASE_URL . "/defendants?success={$successMessage}");
         exit;
     }
 

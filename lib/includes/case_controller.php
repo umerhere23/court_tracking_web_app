@@ -293,7 +293,6 @@ function handle_confirm_step($app) {
         unset($_SESSION['case']);
         unset($_SESSION['event']);
 
-        ($app->set_message)('success', 'Case added successfully.');
         header("Location: " . BASE_URL . "/case/success");
         exit;
 
