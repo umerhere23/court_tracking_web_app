@@ -7,101 +7,68 @@ require_once __DIR__ . '/../includes/helpers.php';
 // route internally within charge_controller
 switch ($action) {
     case 'edit':
-        edit_charge($app, $chargeID);
+        save_charge($app, $chargeID);
+        break;
+    case 'add':
+        save_charge($app);
         break;
     case 'delete':
         delete_charge($app, $chargeID);
         break;
-    case 'add':
-        add_charge($app);
-        break;
     default:
         ($app->render)('standard', '404');
+        exit;
 }
 
-function add_charge($app) {
-    try {
-        $caseID = $_GET['caseID'] ?? null;
 
-        if (!$caseID) { // caseID required for database integrity
-            throw new Exception("Case ID required.");
-        }
-    
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $description = $_POST['description'] ?? '';
-            $status = $_POST['status'] ?? '';
-    
-            // Server-side validation
-            if (empty($description) || empty($status)) {
-                throw new Exception("Missing data for adding a charge.");
-            }
-    
-            $data = [
-                'description' => $description,
-                'status' => $status
-            ];
-            
-            // perform database operation
-            Charge::create($caseID, $data);
-            $successMessage = urlencode("Charge added successfully."); // display messages to user
-    
-            // Redirect to the case edit page after adding the charge
-            header("Location: " . BASE_URL . "/case/edit/" . $caseID . '/?success=' . $successMessage);
-            exit;
-        }
-        
-        // otherwise GET request, display form for adding charge
-        ($app->render)('standard', 'forms/charge_form', [
-            'caseID' => $caseID,
-            'isEdit' => false, 
-        ]);
-    } catch (Exception $e) {
-        render_error($app, $e->getMessage());
-    }
-    
-}
-
-function edit_charge($app, $chargeID) {
+// add and edit functionality combined into single function
+function save_charge($app, $chargeID = null) {
     try {
+        // caseID required for both adding and editing
         $caseID = $_GET['caseID'] ?? null;
-        
-        // caseID required
         if (!$caseID) {
             throw new Exception("Case ID required.");
         }
 
-        // get the charge object
-        $charge = Charge::getChargeByChargeID($chargeID);
+        $isEdit = isset($chargeID);
+        $charge = $isEdit ? Charge::getChargeByChargeID($chargeID) : null;
 
-        if (!$charge) {
+        if ($isEdit && !$charge) {
             throw new Exception("Charge not found.");
         }
-    
+
+        // get user data for POST request
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $description = $_POST['description'] ?? '';
             $status = $_POST['status'] ?? '';
-    
-            // Server-side validation
+
             if (empty($description) || empty($status)) {
                 throw new Exception("Description and status must be filled.");
             }
-    
+
             $data = [
                 'description' => $description,
                 'status' => $status
             ];
-    
-            // perform database operation
-            Charge::update($chargeID, $data);
-            $successMessage = urlencode("Charge updated successfully."); // display messages to user
-    
-            header("Location: " . BASE_URL . "/case/edit/" . $caseID . '/?success=' . $successMessage);
+            // database operations
+            if ($isEdit) {
+                Charge::update($chargeID, $data);
+                $message = "Charge updated successfully.";
+            } else {
+                Charge::create($caseID, $data);
+                $message = "Charge added successfully.";
+            }
+
+            $successMessage = urlencode($message);
+            header("Location: " . BASE_URL . "/case/edit/" . $caseID . "/?success=" . $successMessage);
             exit;
         }
-    
+
+        // Render form on GET request
         ($app->render)('standard', 'forms/charge_form', [
-            'charge' => $charge, // pass details to display on form
-            'isEdit' => true, 
+            'caseID' => $caseID,
+            'charge' => $charge,
+            'isEdit' => $isEdit,
         ]);
 
     } catch (Exception $e) {

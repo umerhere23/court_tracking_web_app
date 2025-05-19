@@ -44,6 +44,7 @@ switch ($action) {
         break;
     default:
         ($app->render)('standard', '404');
+        exit;
 }
 
 function handle_defendant_step($app) {

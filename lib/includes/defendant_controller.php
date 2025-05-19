@@ -12,6 +12,7 @@ $FIELDS = [
 ];
 
 require_once __DIR__ . '/../models/Defendant.php';
+require_once __DIR__ . '/../includes/helpers.php';
 
 switch ($action) {
     // direct user to correct page
@@ -38,57 +39,63 @@ switch ($action) {
 
 function save_defendant($app, $FIELDS, $defendantID = null) {
     // edit and add functionality combined into a single function
-    // do not define defendantID if using for adding
-    $isEdit = !is_null($defendantID);
-    $defendant = null;
 
-    if ($isEdit) { // if edit, fetch data
-        $rows = Defendant::getDefendantByDefendantId($defendantID);
-        $defendant = $rows[0] ?? null;
-    }
+    try {
+        // do not define defendantID if using for adding
+        $isEdit = !is_null($defendantID);
+        $defendant = null;
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $data = [];
-        foreach ($FIELDS as $field) {
-            $data[$field] = $_POST[$field] ?? null;
+        if ($isEdit) { // if edit, fetch data
+            $rows = Defendant::getDefendantByDefendantId($defendantID);
+            $defendant = $rows[0] ?? null;
         }
 
-        // server side checking - there is also already client-side
-        if (empty($data['name']) || empty($data['dob'])) {
-            $failMessage = urlencode("Defendant NOT " . ($isEdit ? "edited" : "added") . ". Error with input.");
-            header("Location: " . BASE_URL . "/defendants?success={$failMessage}");
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data = [];
+            foreach ($FIELDS as $field) {
+                $data[$field] = $_POST[$field] ?? null;
+            }
+
+            // server side checking - there is also already client-side
+            if (empty($data['name']) || empty($data['dob'])) {
+                throw new Exception("Defendant NOT " . ($isEdit ? "edited" : "added") . ". Error with input.");
+            }
+
+            if ($isEdit) { // update database
+                Defendant::update($defendantID, $data);
+                $successMessage = urlencode("Defendant edited successfully.");
+            } else {
+                Defendant::create($data);
+                $successMessage = urlencode("Defendant added successfully.");
+            }
+
+            header("Location: " . BASE_URL . "/defendants?success={$successMessage}");
             exit;
         }
 
-        if ($isEdit) { // update database
-            Defendant::update($defendantID, $data);
-            $successMessage = urlencode("Defendant edited successfully.");
-        } else {
-            Defendant::create($data);
-            $successMessage = urlencode("Defendant added successfully.");
-        }
-
-        header("Location: " . BASE_URL . "/defendants?success={$successMessage}");
-        exit;
+        ($app->render)('standard', 'forms/defendant_form', [
+            'defendant' => $defendant,
+            'isEdit' => $isEdit,
+        ]);
+    } catch (Exception $e) {
+        render_error($app, $e->getMessage());
     }
-
-    ($app->render)('standard', 'forms/defendant_form', [
-        'defendant' => $defendant,
-        'isEdit' => $isEdit,
-    ]);
 }
 
 
 function delete_defendant($app, $defendantID) {
+    try {
+        // update database
+        Defendant::delete($defendantID);
+        $successMessage = urlencode("Defendant deleted successfully.");
 
-    Defendant::delete($defendantID);
-
-    // Keep user on same page
-    $successMessage = urlencode("Defendant deleted successfully.");
-    header("Location: " . BASE_URL . "/defendant/manage?success={$successMessage}");
-    exit;
+        // Keep user on same page
+        header("Location: " . BASE_URL . "/defendant/manage?success={$successMessage}");
+        exit;
+    } catch (Exception $e) {
+        render_error($app, $e->getMessage());
+    }
 }
-
 
 function handle_search_defendants($app) {
     if ($_SERVER['REQUEST_METHOD'] === 'GET'){
@@ -107,10 +114,14 @@ function handle_search_defendants($app) {
 }
 
 function show_manage_defendants($app) {
-    // get all defendants from DB
-    $defendants = Defendant::getAllDefendantsWithDetails();
+    try {
+        // get all defendants from DB
+        $defendants = Defendant::getAllDefendantsWithDetails();
 
-    ($app->render)('standard', 'all_entities/all_defendants', [
-        'defendants' => $defendants
-    ]);
+        ($app->render)('standard', 'all_entities/all_defendants', [
+            'defendants' => $defendants
+        ]);
+    } catch (Exception $e) {
+        render_error($app, $e->getMessage());
+    }
 }

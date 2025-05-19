@@ -3,6 +3,7 @@ session_start();
 
 require_once __DIR__ . '/../models/CourtEvent.php';
 
+// internal routing within controller for CRUD operations
 switch ($action) {
     case 'edit':
         edit_event($app, $eventID);
@@ -14,11 +15,9 @@ switch ($action) {
         add_event($app);
         break;
     default:
-        http_response_code(405); 
-        echo "Method Not Allowed";
+        ($app->render)('standard', '404');
         exit;
 }
-
 
 function delete_event($app, $eventID) {
     $caseID = $_GET['caseID'] ?? null;
