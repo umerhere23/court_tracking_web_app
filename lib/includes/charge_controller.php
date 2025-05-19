@@ -20,8 +20,7 @@ switch ($action) {
         exit;
 }
 
-
-// add and edit functionality combined into single function
+// add and edit functionality combined into single function for DRY
 function save_charge($app, $chargeID = null) {
     try {
         // caseID required for both adding and editing
@@ -59,9 +58,7 @@ function save_charge($app, $chargeID = null) {
                 $message = "Charge added successfully.";
             }
 
-            $successMessage = urlencode($message);
-            header("Location: " . BASE_URL . "/case/edit/" . $caseID . "/?success=" . $successMessage);
-            exit;
+            redirect_with_success("/case/edit/" . $caseID, $successMessage);
         }
 
         // Render form on GET request
@@ -85,12 +82,10 @@ function delete_charge($app, $chargeID) {
     
         // perform database operation
         Charge::delete($chargeID);
-        $successMessage = urlencode("Charge deleted successfully.");
-    
+
         // Redirect back to edit case page
-        header("Location: " . BASE_URL . "/case/edit/" . $caseID . '/?success=' . $successMessage);
-        exit;     
-   
+        redirect_with_success("/case/edit/" . $caseID, "Charge deleted successfully.");   
+        
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
     }

@@ -2,7 +2,7 @@
 session_start();
 
 // define Defendant DB fields
-$FIELDS = [
+const DEFENDANT_FIELDS = [
     'name',
     'dob',
     'address',
@@ -17,13 +17,13 @@ require_once __DIR__ . '/../includes/helpers.php';
 switch ($action) {
     // direct user to correct page
     case 'edit':
-        save_defendant($app, $FIELDS, $defendantID);
+        save_defendant($app, $defendantID);
         break;
     case 'delete':
         delete_defendant($app, $defendantID);
         break;
     case 'add':
-        save_defendant($app, $FIELDS);
+        save_defendant($app);
         break;
     case 'search':
         handle_search_defendants($app);
@@ -32,29 +32,20 @@ switch ($action) {
         show_manage_defendants($app);
         break;
     default:
-        http_response_code(405); 
-        echo "Method Not Allowed";
+        ($app->render)('standard', '404');
         exit;
 }
 
-function save_defendant($app, $FIELDS, $defendantID = null) {
+function save_defendant($app, $defendantID = null) {
     // edit and add functionality combined into a single function
 
     try {
         // do not define defendantID if using for adding
         $isEdit = !is_null($defendantID);
-        $defendant = null;
-
-        if ($isEdit) { // if edit, fetch data
-            $rows = Defendant::getDefendantByDefendantId($defendantID);
-            $defendant = $rows[0] ?? null;
-        }
+        $defendant = $isEdit ? Defendant::getDefendantByDefendantId($defendantID) : null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [];
-            foreach ($FIELDS as $field) {
-                $data[$field] = $_POST[$field] ?? null;
-            }
+            $data = extract_post_data(DEFENDANT_FIELDS);
 
             // server side checking - there is also already client-side
             if (empty($data['name']) || empty($data['dob'])) {
@@ -63,14 +54,13 @@ function save_defendant($app, $FIELDS, $defendantID = null) {
 
             if ($isEdit) { // update database
                 Defendant::update($defendantID, $data);
-                $successMessage = urlencode("Defendant edited successfully.");
+                $successMessage = "Defendant edited successfully.";
             } else {
                 Defendant::create($data);
-                $successMessage = urlencode("Defendant added successfully.");
+                $successMessage = "Defendant added successfully.";
             }
 
-            header("Location: " . BASE_URL . "/defendants?success={$successMessage}");
-            exit;
+            redirect_with_success("/defendant/manage", $successMessage);
         }
 
         ($app->render)('standard', 'forms/defendant_form', [
@@ -82,16 +72,14 @@ function save_defendant($app, $FIELDS, $defendantID = null) {
     }
 }
 
-
 function delete_defendant($app, $defendantID) {
     try {
         // update database
         Defendant::delete($defendantID);
-        $successMessage = urlencode("Defendant deleted successfully.");
 
         // Keep user on same page
-        header("Location: " . BASE_URL . "/defendant/manage?success={$successMessage}");
-        exit;
+        redirect_with_success("/defendant/manage", "Defendant deleted successfully.");
+        
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
     }

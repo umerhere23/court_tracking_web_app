@@ -62,10 +62,7 @@ function handle_defendant_step($app) {
             $defendantID = Defendant::create($_POST);
             $_SESSION['case']['defendant_ID'] = $defendantID; // Store in session
 
-            // Set success message and redirect to defendent step
-            $successMessage = urlencode('Defendant added successfully.');
-            header("Location: " . BASE_URL . "/case/defendant?success={$successMessage}");
-            exit;
+            redirect_with_success("/case/defendant", "Defendant added successfully.");
         }
 
         // Handle 'select_existing' action
@@ -151,11 +148,8 @@ function handle_lawyer_step($app) {
             // Create new defendant and get the defendant ID
             $lawyerID = Lawyer::create($_POST);
             $_SESSION['case']['lawyer_ID'] = $lawyerID; // Store in session
-
-            // Set success message and redirect to lawyer step
-            $successMessage = urlencode('Lawyer added successfully.');
-            header("Location: " . BASE_URL . "/case/lawyer?success={$successMessage}");
-            exit;
+            
+            redirect_with_success("/case/lawyer", "Lawyer added successfully.");
         }
 
         // Handle 'select_existing' action

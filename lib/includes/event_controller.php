@@ -55,14 +55,13 @@ function save_event($app, $eventID = null) {
             // database operations
             if ($isEdit) {
                 CourtEvent::update($eventID, $data);
-                $successMessage = urlencode("Event updated successfully.");
+                $successMessage = "Event updated successfully.";
             } else {
                 CourtEvent::create($caseID, $data);
-                $successMessage = urlencode("Event added successfully.");
+                $successMessage = "Event added successfully.";
             }
     
-            header("Location: " . BASE_URL . "/case/edit/" . $caseID . '/?success=' . $successMessage);
-            exit;
+            redirect_with_success("/case/edit/" . $caseID, $successMessage);
         }
         
         // for GET request, display standard form
@@ -86,11 +85,9 @@ function delete_event($app, $eventID) {
         
         // database operation
         CourtEvent::delete($eventID);
-        $successMessage = urlencode("Event deleted successfully.");
-    
-        // Redirect back to edit case page
-        header("Location: " . BASE_URL . "/case/edit/" . $caseID . '/?success=' . $successMessage);
-        exit;
+
+        redirect_with_success("/case/edit/" . $caseID, "Event deleted successfully.");
+        
     } catch (Exception $e) {
         render_error($app, $e->getMessage());
     }
