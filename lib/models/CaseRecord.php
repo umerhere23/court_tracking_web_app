@@ -22,13 +22,6 @@ class CaseRecord
             throw new InvalidArgumentException("Invalid Case ID.");
         }
 
-        // Optional: Delete related charges, events (or use ON DELETE CASCADE in DB)
-        $stmt = $db->prepare("DELETE FROM charge WHERE case_ID = :caseID");
-        $stmt->execute([':caseID' => $caseID]);
-
-        $stmt = $db->prepare("DELETE FROM court_event WHERE case_ID = :caseID");
-        $stmt->execute([':caseID' => $caseID]);
-
         // Delete the case itself
         $stmt = $db->prepare("DELETE FROM caserecord WHERE case_ID = :caseID");
         $stmt->execute([':caseID' => $caseID]);

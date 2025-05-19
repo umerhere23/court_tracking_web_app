@@ -37,7 +37,7 @@ class CourtEvent
         $stmt = $db->prepare("SELECT * FROM court_event WHERE Event_ID = :eventID");
         $stmt->execute([':eventID' => $eventID]);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
 

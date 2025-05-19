@@ -39,7 +39,6 @@ class Charge
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-
     public static function delete($chargeID) {
         $db = Database::getInstance()->getConnection();
     

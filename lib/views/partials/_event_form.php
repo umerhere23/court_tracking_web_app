@@ -4,7 +4,7 @@
     type="text" 
     class="form-control" 
     name="description" 
-    value="<?= htmlspecialchars($event[0]["Description"]?? '') ?>"
+    value="<?= htmlspecialchars($event["Description"]?? '') ?>"
     >
 
     <label class="form-label">Event Date</label>
@@ -12,7 +12,7 @@
     type="date" 
     class="form-control" 
     name="date" 
-    value="<?= htmlspecialchars($event[0]["Date"]?? '') ?>"
+    value="<?= htmlspecialchars($event["Date"]?? '') ?>"
     >
 
     <label class="form-label">Event Location</label>
@@ -20,6 +20,6 @@
     type="text" 
     class="form-control" 
     name="location" 
-    value="<?= htmlspecialchars($event[0]["Location"]?? '') ?>"
+    value="<?= htmlspecialchars($event["Location"]?? '') ?>"
     >
 </div>
