@@ -34,8 +34,7 @@ class Lawyer
     {
         $stmt = $this->db->query("SELECT lawyer_ID, Name FROM lawyer ORDER BY Name ASC");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }    
-
+    }  
 
     public static function getAllLawyersWithDetails()
     // returns lawyer_ID and lawyer_name for all_lawyers page
