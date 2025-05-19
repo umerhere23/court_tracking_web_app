@@ -58,7 +58,7 @@ class Lawyer
         $stmt = $db->prepare("SELECT * FROM Lawyer WHERE lawyer_ID = :lawyerID");
         $stmt->execute([':lawyerID' => $lawyerID]);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public static function update($lawyerID, $data) {

@@ -96,7 +96,7 @@ class Defendant
         $stmt = $db->prepare("SELECT * FROM Defendant WHERE defendant_ID = :defendantID");
         $stmt->execute([':defendantID' => $defendantID]);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public static function update($defendantID, $data) {

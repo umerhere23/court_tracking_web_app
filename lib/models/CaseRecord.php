@@ -49,4 +49,11 @@ class CaseRecord
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public static function linkLawyer($caseID, $lawyerID)
+    {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("INSERT INTO case_lawyer (case_ID, lawyer_ID) VALUES (?, ?)");
+        $stmt->execute([$caseID, $lawyerID]);
+    }
 }

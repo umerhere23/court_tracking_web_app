@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+// all models required to add or edit a case
 require_once __DIR__ . '/../models/Defendant.php';
 require_once __DIR__ . '/../models/Lawyer.php';
 require_once __DIR__ . '/../models/CaseRecord.php';
@@ -8,6 +9,7 @@ require_once __DIR__ . '/../models/Charge.php';
 require_once __DIR__ . '/../models/CourtEvent.php';
 
 switch ($action) {
+    // internal routing within the controller
     case 'defendant':
         handle_defendant_step($app);
         break;
@@ -22,9 +24,9 @@ switch ($action) {
         break;
     case 'confirm':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            handle_confirm_step($app);
+            handle_confirm_step($app); // user has confirmed changes
         } else {
-            show_case_review($app);
+            show_case_review($app); // to show the user changes for confirmation
         }
         break;
     case 'success':
@@ -248,11 +250,12 @@ function show_case_review($app) {
     $db = Database::getInstance()->getConnection();
 
     // Fetch defendant
-    $defendant = fetch_by_id($db, 'defendant', $case['defendant_ID']);
+    $defendant = Defendant::getDefendantByDefendantID($case['defendant_ID']);
     
     // Fetch lawyer
-    $lawyer = fetch_by_id($db, 'lawyer', $case['lawyer_ID']);
+    $lawyer = Lawyer::getLawyerByLawyerID($case['lawyer_ID']);
 
+    // send data for user confirmation
     ($app->render)('standard', 'case_wizard/confirm_view', [
         'case' => $case,
         'event' => $event,
@@ -265,7 +268,7 @@ function handle_confirm_step($app) {
     $data = $_SESSION['case'] ?? [];
     $event = $_SESSION['event'] ?? [];
 
-    // Check required fields
+    // Check required fields server-side (client-side already performed)
     if (empty($data['defendant_ID']) || empty($data['charges']) || empty($data['lawyer_ID'])) {
         http_response_code(400);
         echo "Missing required data in session. Please complete all steps.";
@@ -278,13 +281,13 @@ function handle_confirm_step($app) {
         $db->beginTransaction();
 
         // 1. Create Case Record
-        $caseID = insert_case_record($db, $data['defendant_ID']);
+        $caseID = CaseRecord::create($data['defendant_ID']);
         
         // 2. Add All Charges
         insert_case_charges($db, $caseID, $data['charges']);
         
         // 3. Link Lawyer
-        link_case_lawyer($db, $caseID, $data['lawyer_ID']);
+        CaseRecord::linkLawyer($caseID, $data['lawyer_ID']);
         
         // 4. Add Court Events (optional)
         insert_case_events($db, $caseID, $data['events']);
@@ -303,30 +306,15 @@ function handle_confirm_step($app) {
     }
 }
 
-function fetch_by_id($db, $table, $id) {
-    $stmt = $db->prepare("SELECT * FROM $table WHERE {$table}_ID = ?");
-    $stmt->execute([$id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-}
-
-function insert_case_record($db, $defendantID) {
-    $stmt = $db->prepare("INSERT INTO caserecord (defendant_ID) VALUES (?)");
-    $stmt->execute([$defendantID]);
-    return $db->lastInsertId();
-}
-
-function insert_case_charges($db, $caseID, $charges) {
+function insert_case_charges($db, $caseID, $charges) { 
+    // inserts charges for case
     foreach ($charges as $charge) {
         Charge::create($caseID, $charge);
     }
 }
 
-function link_case_lawyer($db, $caseID, $lawyerID) {
-    $stmt = $db->prepare("INSERT INTO case_lawyer (case_ID, lawyer_ID) VALUES (?, ?)");
-    $stmt->execute([$caseID, $lawyerID]);
-}
-
 function insert_case_events($db, $caseID, $events) {
+    // inserts events for case
     foreach ($events as $event) {
         if (!empty($event['description']) || !empty($event['date']) || !empty($event['location'])) {
             CourtEvent::create($caseID, $event);
@@ -335,7 +323,6 @@ function insert_case_events($db, $caseID, $events) {
 }
 
 function show_manage_cases($app) {
-
     $cases = CaseRecord::getAllCasesWithDetails();
 
     ($app->render)('standard', 'all_entities/all_cases', [
