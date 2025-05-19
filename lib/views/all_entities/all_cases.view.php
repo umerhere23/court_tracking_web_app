@@ -21,7 +21,11 @@
                     <td><?= htmlspecialchars($case['lawyer_name'] ?? 'N/A') ?></td>
                     <td>
                         <a href="<?= BASE_URL ?>/case/edit/<?= $case['case_ID'] ?>" class="btn btn-sm btn-primary">Edit</a>
-                        <a href="<?= BASE_URL ?>/case/delete/<?= $case['case_ID'] ?>" class="btn btn-sm btn-secondary">Delete</a>
+                        <a href="<?= BASE_URL ?>/case/delete/<?= $case['case_ID'] ?>" 
+                            class="btn btn-sm btn-secondary"
+                            onclick="return confirm('Are you sure you want to delete this case?');">
+                            Delete
+                        </a>                    
                     </td>
                 </tr>
             <?php endforeach; ?>

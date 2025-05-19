@@ -12,7 +12,11 @@
         <li>
             <?= htmlspecialchars($charge['Description']) ?> (Status: <?= htmlspecialchars($charge['Status']) ?>)
             <a href="<?= BASE_URL ?>/charge/edit/<?= $charge['charge_ID'] ?>?caseID=<?= $caseID ?>" class="btn btn-sm btn-secondary">Edit</a>
-            <a href="<?= BASE_URL ?>/charge/delete/<?= $charge['charge_ID'] ?>?caseID=<?= $caseID ?>" class="btn btn-sm btn-danger">Delete</a>
+            <a href="<?= BASE_URL ?>/charge/delete/<?= $charge['charge_ID'] ?>?caseID=<?= $caseID ?>" 
+                class="btn btn-sm btn-danger"
+                onclick="return confirm('Are you sure you want to delete this charge?');">
+                Delete
+            </a>
         </li>
     <?php endforeach; ?>
 </ul>
@@ -27,7 +31,11 @@
         <li>
             <?= htmlspecialchars($event['Description']) ?> on <?= htmlspecialchars($event['Date']) ?> at <?= htmlspecialchars($event['Location']) ?>
             <a href="<?= BASE_URL ?>/event/edit/<?= $event['Event_ID'] ?>?caseID=<?= $caseID ?>" class="btn btn-sm btn-secondary">Edit</a>
-            <a href="<?= BASE_URL ?>/event/delete/<?= $event['Event_ID'] ?>?caseID=<?= $caseID ?>" class="btn btn-sm btn-danger">Delete</a>
+            <a href="<?= BASE_URL ?>/event/delete/<?= $event['Event_ID'] ?>?caseID=<?= $caseID ?>" 
+                class="btn btn-sm btn-danger"
+                onclick="return confirm('Are you sure you want to delete this event?');">
+                Delete
+            </a>
         </li>
     <?php endforeach; ?>
 </ul>

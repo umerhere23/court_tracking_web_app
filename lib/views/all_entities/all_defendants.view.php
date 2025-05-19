@@ -25,7 +25,11 @@
                     <td><?= htmlspecialchars($defendant['defendant_DOB'] ?? 'N/A') ?></td>
                     <td>
                         <a href="<?= BASE_URL ?>/defendant/edit/<?= $defendant['defendant_ID'] ?>" class="btn btn-sm btn-primary">Edit</a>
-                        <a href="<?= BASE_URL ?>/defendant/delete/<?= $defendant['defendant_ID'] ?>" class="btn btn-sm btn-secondary">Delete</a>
+                        <a href="<?= BASE_URL ?>/defendant/delete/<?= $defendant['defendant_ID'] ?>" 
+                            class="btn btn-sm btn-secondary"
+                            onclick="return confirm('Are you sure you want to delete this defendant?');">
+                            Delete
+                        </a>
                     </td>
                 </tr>
             <?php endforeach; ?>
