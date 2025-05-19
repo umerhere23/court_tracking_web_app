@@ -1,4 +1,5 @@
 <h2>Manage Cases</h2>
+<a href="<?= BASE_URL ?>/cases" class="btn btn-outline-secondary mb-3">← Back</a>
 
 <?php if (empty($cases)): ?>
     <p>No cases found.</p>

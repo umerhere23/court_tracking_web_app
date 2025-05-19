@@ -1,4 +1,4 @@
-
+<a href="<?= BASE_URL ?>/" class="btn btn-outline-secondary mb-3">← Back</a>
 
 <?php if (!empty($_GET['success'])): ?>
   <div class="alert alert-success"><?= htmlspecialchars($_GET['success']) ?></div>

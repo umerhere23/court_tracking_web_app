@@ -1,4 +1,5 @@
 <h2>Manage Defendants</h2>
+<a href="<?= BASE_URL ?>/defendants" class="btn btn-outline-secondary mb-3">← Back</a>
 
 <?php if (!empty($_GET['success'])): ?>
   <div class="alert alert-success"><?= htmlspecialchars($_GET['success']) ?></div>

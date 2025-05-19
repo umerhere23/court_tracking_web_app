@@ -1,4 +1,5 @@
 <h2>Enter Charge Information</h2>
+<a href="<?= BASE_URL ?>/case/cancel" class="btn btn-outline-danger">Cancel Wizard</a>
 
 <form method="POST" action="<?= BASE_URL ?>/case/charges">
   <?php require PARTIALS . '/_charge_form.php'; ?>

@@ -39,6 +39,9 @@ switch ($action) {
     case 'edit':
         edit_case($app, $caseID);
         break;
+    case 'cancel':
+        cancel_case_wizard();
+        break;
     case 'delete':
         delete_case($app, $caseID);
         break;

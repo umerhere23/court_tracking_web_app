@@ -1,4 +1,5 @@
 <h2>Add or Select Defendant</h2>
+<a href="<?= BASE_URL ?>/case/cancel" class="btn btn-outline-danger">Cancel Wizard</a>
 
 <?php if (!empty($_GET['success'])): ?>
   <div class="alert alert-success"><?= htmlspecialchars($_GET['success']) ?></div>

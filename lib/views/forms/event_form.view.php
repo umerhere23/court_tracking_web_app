@@ -1,4 +1,5 @@
 <h2><?= $isEdit ? 'Edit Event' : 'Add Event' ?></h2>
+<a href="<?= BASE_URL ?>/case/edit/<?= $caseID ?>" class="btn btn-outline-danger">← Cancel</a>
 
 <form method="POST" action="">
     <?php include PARTIALS . '/_event_form.php'; ?>

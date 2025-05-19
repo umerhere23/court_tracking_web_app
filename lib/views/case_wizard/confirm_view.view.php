@@ -1,4 +1,5 @@
 <h2>Review Case Details</h2>
+<a href="<?= BASE_URL ?>/case/cancel" class="btn btn-outline-danger">Cancel Wizard</a>
 
 <p><strong>Defendant:</strong> <?= htmlspecialchars($defendant['Name']) ?></p>
 

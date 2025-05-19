@@ -1,4 +1,5 @@
 <h2>Optional Court Event</h2>
+<a href="<?= BASE_URL ?>/case/cancel" class="btn btn-outline-danger">Cancel Wizard</a>
 
 <form method="POST" action="<?= BASE_URL ?>/case/events" id="event-form">
   <?php require PARTIALS . '/_event_form.php'; ?>

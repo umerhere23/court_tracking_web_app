@@ -1,4 +1,6 @@
 <h2>Edit Case ID: <?= htmlspecialchars($caseID) ?></h2>
+<a href="<?= BASE_URL ?>/cases" class="btn btn-outline-secondary mb-3r">← Back to Case List</a>
+<div class="my-3"></div>
 
 <?php if (!empty($_GET['success'])): ?>
   <div class="alert alert-success"><?= htmlspecialchars($_GET['success']) ?></div>
@@ -32,5 +34,3 @@
 
 <a href="<?= BASE_URL ?>/event/add?caseID=<?= $caseID ?>" class="btn btn-primary mt-3">Add Event</a>
 <hr>
-
-<a href="<?= BASE_URL ?>/case/manage" class="btn btn-secondary mt-3">Back to Case List</a>

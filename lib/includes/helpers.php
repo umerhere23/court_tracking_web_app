@@ -20,3 +20,10 @@ function extract_post_data(array $fields): array {
     }
     return $data;
 }
+
+function cancel_case_wizard() {
+    // function cancels session data
+    unset($_SESSION['case']);
+    header("Location: " . BASE_URL . "/cases");
+    exit;
+}
