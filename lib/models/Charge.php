@@ -36,7 +36,7 @@ class Charge
         $stmt = $db->prepare("SELECT * FROM charge WHERE charge_ID = :chargeID");
         $stmt->execute([':chargeID' => $chargeID]);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
 

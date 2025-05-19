@@ -2,7 +2,9 @@
 session_start();
 
 require_once __DIR__ . '/../models/Charge.php';
+require_once __DIR__ . '/../includes/helpers.php';
 
+// route internally within charge_controller
 switch ($action) {
     case 'edit':
         edit_charge($app, $chargeID);
@@ -14,95 +16,115 @@ switch ($action) {
         add_charge($app);
         break;
     default:
-        http_response_code(405); 
-        echo "Method Not Allowed";
-        exit;
+        ($app->render)('standard', '404');
 }
 
 function add_charge($app) {
-    $caseID = $_GET['caseID'] ?? null;
-    if (!$caseID) {
-        http_response_code(400);
-        echo "Missing case ID.";
-        exit;
-    }
+    try {
+        $caseID = $_GET['caseID'] ?? null;
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $description = $_POST['description'] ?? '';
-        $status = $_POST['status'] ?? '';
-
-        // Server-side validation
-        if (empty($description) || empty($status)) {
-            header("Location: " . BASE_URL . "/case/edit/" . $caseID);
+        if (!$caseID) { // caseID required for database integrity
+            throw new Exception("Case ID required.");
+        }
+    
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $description = $_POST['description'] ?? '';
+            $status = $_POST['status'] ?? '';
+    
+            // Server-side validation
+            if (empty($description) || empty($status)) {
+                throw new Exception("Missing data for adding a charge.");
+            }
+    
+            $data = [
+                'description' => $description,
+                'status' => $status
+            ];
+            
+            // perform database operation
+            Charge::create($caseID, $data);
+            $successMessage = urlencode("Charge added successfully."); // display messages to user
+    
+            // Redirect to the case edit page after adding the charge
+            header("Location: " . BASE_URL . "/case/edit/" . $caseID . '/?success=' . $successMessage);
             exit;
         }
-
-        $data = [
-            'description' => $description,
-            'status' => $status
-        ];
-
-        Charge::create($caseID, $data);
-
-        // Redirect to the case edit page after adding the charge
-        header("Location: " . BASE_URL . "/case/edit/" . $caseID);
-        exit;
+        
+        // otherwise GET request, display form for adding charge
+        ($app->render)('standard', 'forms/charge_form', [
+            'caseID' => $caseID,
+            'isEdit' => false, 
+        ]);
+    } catch (Exception $e) {
+        render_error($app, $e->getMessage());
     }
-
-    ($app->render)('standard', 'forms/charge_form', [
-        'caseID' => $caseID,
-        'isEdit' => false, 
-    ]);
+    
 }
 
 function edit_charge($app, $chargeID) {
-    $caseID = $_GET['caseID'] ?? null;
-    if (!$caseID) {
-        http_response_code(400);
-        echo "Missing case ID.";
-        exit;
-    }
-
-    $charge = Charge::getChargeByChargeID($chargeID);
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $description = $_POST['description'] ?? '';
-        $status = $_POST['status'] ?? '';
-
-        // Server-side validation
-        if (empty($description) || empty($status)) {
-            header("Location: " . BASE_URL . "/case/edit/" . $caseID);
-            exit;
+    try {
+        $caseID = $_GET['caseID'] ?? null;
+        
+        // caseID required
+        if (!$caseID) {
+            throw new Exception("Case ID required.");
         }
 
-        $data = [
-            'description' => $description,
-            'status' => $status
-        ];
+        // get the charge object
+        $charge = Charge::getChargeByChargeID($chargeID);
 
-        Charge::update($chargeID, $data);
+        if (!$charge) {
+            throw new Exception("Charge not found.");
+        }
+    
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $description = $_POST['description'] ?? '';
+            $status = $_POST['status'] ?? '';
+    
+            // Server-side validation
+            if (empty($description) || empty($status)) {
+                throw new Exception("Description and status must be filled.");
+            }
+    
+            $data = [
+                'description' => $description,
+                'status' => $status
+            ];
+    
+            // perform database operation
+            Charge::update($chargeID, $data);
+            $successMessage = urlencode("Charge updated successfully."); // display messages to user
+    
+            header("Location: " . BASE_URL . "/case/edit/" . $caseID . '/?success=' . $successMessage);
+            exit;
+        }
+    
+        ($app->render)('standard', 'forms/charge_form', [
+            'charge' => $charge, // pass details to display on form
+            'isEdit' => true, 
+        ]);
 
-        header("Location: " . BASE_URL . "/case/edit/" . $caseID);
-        exit;
+    } catch (Exception $e) {
+        render_error($app, $e->getMessage());
     }
-
-    ($app->render)('standard', 'forms/charge_form', [
-        'charge' => $charge,
-        'isEdit' => true, 
-    ]);
 }
 
 function delete_charge($app, $chargeID) {
-    $caseID = $_GET['caseID'] ?? null;
-    if (!$caseID) {
-        http_response_code(400);
-        echo "Missing case ID.";
-        exit;
+    try {
+        $caseID = $_GET['caseID'] ?? null;
+        if (!$caseID) {
+            throw new Exception("Case ID required.");
+        }
+    
+        // perform database operation
+        Charge::delete($chargeID);
+        $successMessage = urlencode("Charge deleted successfully.");
+    
+        // Redirect back to edit case page
+        header("Location: " . BASE_URL . "/case/edit/" . $caseID . '/?success=' . $successMessage);
+        exit;     
+   
+    } catch (Exception $e) {
+        render_error($app, $e->getMessage());
     }
-
-    Charge::delete($chargeID);
-
-    // Redirect back to edit case page
-    header("Location: " . BASE_URL . "/case/edit/" . $caseID);
-    exit;
 }

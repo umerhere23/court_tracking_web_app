@@ -4,7 +4,7 @@
     type="text" 
     class="form-control" 
     name="description" 
-    value="<?= htmlspecialchars($charge[0]["Description"]?? '') ?>"
+    value="<?= htmlspecialchars($charge["Description"]?? '') ?>"
     >
 </div>
 
@@ -13,7 +13,7 @@
   <select class="form-select" name="status">
     <?php
       $statuses = ['Pending', 'Resolved', 'Dismissed'];
-      $currentStatus = $charge[0]['Status'] ?? '';
+      $currentStatus = $charge['Status'] ?? '';
       foreach ($statuses as $status):
     ?>
       <option value="<?= $status ?>" <?= ($status === $currentStatus) ? 'selected' : '' ?>>

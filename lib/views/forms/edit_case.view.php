@@ -1,5 +1,9 @@
 <h2>Edit Case ID: <?= htmlspecialchars($caseID) ?></h2>
 
+<?php if (!empty($_GET['success'])): ?>
+  <div class="alert alert-success"><?= htmlspecialchars($_GET['success']) ?></div>
+<?php endif; ?>
+
 <h3>Charges</h3>
 <ul>
     <?php foreach ($charges as $charge): ?>

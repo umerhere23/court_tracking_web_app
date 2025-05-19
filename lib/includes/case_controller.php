@@ -7,6 +7,7 @@ require_once __DIR__ . '/../models/Lawyer.php';
 require_once __DIR__ . '/../models/CaseRecord.php';
 require_once __DIR__ . '/../models/Charge.php';
 require_once __DIR__ . '/../models/CourtEvent.php';
+require_once __DIR__ . '/../includes/helpers.php';
 
 switch ($action) {
     // internal routing within the controller
@@ -84,8 +85,7 @@ function handle_defendant_step($app) {
         return;
 
     } catch (Exception $e) {
-        // Handle validation exceptions
-        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);
+        render_error($app, $e->getMessage());
     }
 }
 
@@ -132,7 +132,7 @@ function handle_charge_step($app) {
         exit;
 
     } catch (Exception $e) {
-        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);
+        render_error($app, $e->getMessage());
     }
 }
 
@@ -175,8 +175,7 @@ function handle_lawyer_step($app) {
         return;
 
     } catch (Exception $e) {
-        // Handle validation exceptions
-        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);
+        render_error($app, $e->getMessage());
     }
 }
 
@@ -225,29 +224,33 @@ function handle_event_step($app) {
         }
 
     } catch (Exception $e) {
-        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);;
+        render_error($app, $e->getMessage());
     }
 }
 
 function show_case_review($app) {
-    $case = $_SESSION['case'] ?? [];
-    $event = $_SESSION['event'] ?? [];
-
-    $db = Database::getInstance()->getConnection();
-
-    // Fetch defendant
-    $defendant = Defendant::getDefendantByDefendantID($case['defendant_ID']);
+    try {
+        $case = $_SESSION['case'] ?? [];
+        $event = $_SESSION['event'] ?? [];
     
-    // Fetch lawyer
-    $lawyer = Lawyer::getLawyerByLawyerID($case['lawyer_ID']);
-
-    // send data for user confirmation
-    ($app->render)('standard', 'case_wizard/confirm_view', [
-        'case' => $case,
-        'event' => $event,
-        'defendant' => $defendant,
-        'lawyer' => $lawyer
-    ]);
+        $db = Database::getInstance()->getConnection();
+    
+        // Fetch defendant
+        $defendant = Defendant::getDefendantByDefendantID($case['defendant_ID']);
+        
+        // Fetch lawyer
+        $lawyer = Lawyer::getLawyerByLawyerID($case['lawyer_ID']);
+    
+        // send data for user confirmation
+        ($app->render)('standard', 'case_wizard/confirm_view', [
+            'case' => $case,
+            'event' => $event,
+            'defendant' => $defendant,
+            'lawyer' => $lawyer
+        ]);
+    } catch (Exception $e) {
+        render_error($app, $e->getMessage());
+    }
 }
 
 function handle_confirm_step($app) {
@@ -285,7 +288,7 @@ function handle_confirm_step($app) {
         if ($db->inTransaction()) {
             $db->rollBack();
         }
-        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);
+        render_error($app, $e->getMessage());
     }
 }
 
@@ -314,7 +317,7 @@ function show_manage_cases($app) {
             'cases' => $cases
         ]);
     } catch (Exception $e) {
-        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);        
+        render_error($app, $e->getMessage());
     }
 }
 
@@ -324,7 +327,7 @@ function delete_case($app, $caseID) {
         CaseRecord::deleteCaseByID($caseID);
         show_manage_cases($app);
     } catch (Exception $e) {
-        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);        
+        render_error($app, $e->getMessage());
     } 
 }
 
@@ -340,6 +343,6 @@ function edit_case($app, $caseID) {
             'events'  => $events
         ]);
     } catch (Exception $e) {
-        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);        
+        render_error($app, $e->getMessage());
     } 
 }
