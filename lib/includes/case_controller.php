@@ -42,9 +42,7 @@ switch ($action) {
         delete_case($app, $caseID);
         break;
     default:
-        http_response_code(404);
-        echo "Invalid wizard step.";
-        exit;
+        ($app->render)('standard', '404');
 }
 
 function handle_defendant_step($app) {
@@ -87,12 +85,7 @@ function handle_defendant_step($app) {
 
     } catch (Exception $e) {
         // Handle validation exceptions
-        http_response_code(400);
-        echo "Error: " . $e->getMessage();
-    } catch (PDOException $e) {
-        // Handle database exceptions
-        http_response_code(500);
-        echo "Database error: " . $e->getMessage();
+        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);
     }
 }
 
@@ -139,8 +132,7 @@ function handle_charge_step($app) {
         exit;
 
     } catch (Exception $e) {
-        http_response_code(400);
-        echo "Error: " . $e->getMessage();
+        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);
     }
 }
 
@@ -152,8 +144,8 @@ function handle_lawyer_step($app) {
 
         // Handle 'add_new' action
         if ($action === 'add_new') {
-            if (empty($_POST['name'])) {
-                throw new Exception("Lawyer's name is required.");
+            if (empty($_POST['name'])) { //server-side checking. client-side already performed.
+                throw new Exception("Lawyer's name is required");
             }
             // Create new defendant and get the defendant ID
             $lawyerID = Lawyer::create($_POST);
@@ -184,12 +176,7 @@ function handle_lawyer_step($app) {
 
     } catch (Exception $e) {
         // Handle validation exceptions
-        http_response_code(400);
-        echo "Error: " . $e->getMessage();
-    } catch (PDOException $e) {
-        // Handle database exceptions
-        http_response_code(500);
-        echo "Database error: " . $e->getMessage();
+        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);
     }
 }
 
@@ -238,8 +225,7 @@ function handle_event_step($app) {
         }
 
     } catch (Exception $e) {
-        http_response_code(400);
-        echo "Error: " . $e->getMessage();
+        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);;
     }
 }
 
@@ -265,19 +251,16 @@ function show_case_review($app) {
 }
 
 function handle_confirm_step($app) {
-    $data = $_SESSION['case'] ?? [];
-    $event = $_SESSION['event'] ?? [];
-
-    // Check required fields server-side (client-side already performed)
-    if (empty($data['defendant_ID']) || empty($data['charges']) || empty($data['lawyer_ID'])) {
-        http_response_code(400);
-        echo "Missing required data in session. Please complete all steps.";
-        return;
-    }
-
-    $db = Database::getInstance()->getConnection();
-
     try {
+        $data = $_SESSION['case'] ?? [];
+
+        // Check required fields server-side (client-side already performed)
+        if (empty($data['defendant_ID']) || empty($data['charges']) || empty($data['lawyer_ID'])) {
+            throw new Exception("Missing required data in session. Please complete all steps.");
+        }
+
+        $db = Database::getInstance()->getConnection();
+
         $db->beginTransaction();
 
         // 1. Create Case Record
@@ -294,15 +277,15 @@ function handle_confirm_step($app) {
 
         $db->commit();
         unset($_SESSION['case']);
-        unset($_SESSION['event']);
 
         header("Location: " . BASE_URL . "/case/success");
         exit;
 
-    } catch (PDOException $e) {
-        $db->rollBack();
-        http_response_code(500);
-        echo "Database error: " . $e->getMessage();
+    } catch (Exception $e) {
+        if ($db->inTransaction()) {
+            $db->rollBack();
+        }
+        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);
     }
 }
 
@@ -323,30 +306,40 @@ function insert_case_events($db, $caseID, $events) {
 }
 
 function show_manage_cases($app) {
-    $cases = CaseRecord::getAllCasesWithDetails();
+    try {
+        // query all cases
+        $cases = CaseRecord::getAllCasesWithDetails();
 
-    ($app->render)('standard', 'all_entities/all_cases', [
-        'cases' => $cases
-    ]);
+        ($app->render)('standard', 'all_entities/all_cases', [
+            'cases' => $cases
+        ]);
+    } catch (Exception $e) {
+        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);        
+    }
 }
 
 function delete_case($app, $caseID) {
     try {
+        // delete operation handled by model
         CaseRecord::deleteCaseByID($caseID);
         show_manage_cases($app);
     } catch (Exception $e) {
-        http_response_code(400);
-        echo $e->getMessage();
-    }
+        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);        
+    } 
 }
 
 function edit_case($app, $caseID) {
-    $charges = Charge::getChargesByCaseID($caseID);
-    $events = CourtEvent::getEventsByCaseID($caseID);
-
-    ($app->render)('standard', 'forms/edit_case', [
-        'caseID'  => $caseID,
-        'charges' => $charges,
-        'events'  => $events
-    ]);
+    try {
+        // get charges and events for editing
+        $charges = Charge::getChargesByCaseID($caseID);
+        $events = CourtEvent::getEventsByCaseID($caseID);
+    
+        ($app->render)('standard', 'forms/edit_case', [
+            'caseID'  => $caseID,
+            'charges' => $charges,
+            'events'  => $events
+        ]);
+    } catch (Exception $e) {
+        ($app->render)('standard', 'error', ['message' => $e->getMessage()]);        
+    } 
 }
