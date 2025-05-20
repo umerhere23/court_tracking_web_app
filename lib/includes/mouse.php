@@ -99,3 +99,7 @@ function resolve()
     http_response_code(404);
     ($app->render)('standard', '404');
 }
+
+get('/login', function ($app) {
+    ($app->render)('standard', 'authentication/login');
+});
