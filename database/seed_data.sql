@@ -44,3 +44,11 @@ VALUES
 (1, 'Sydney Courtroom 1', 'Preliminary hearing for theft and resisting arrest', '2025-05-10'),
 (2, 'Melbourne Courtroom 3', 'Trial for assault occasioning actual bodily harm', '2025-06-15'),
 (3, 'Brisbane Courtroom 2', 'Hearing for fraudulent misrepresentation', '2025-07-20');
+
+-- Test admin user for login
+INSERT INTO users (username, password, role)
+VALUES (
+  'admin',
+  '$2y$10$wrilxoWJHndvlTMYFlzb6ucrnHSIrn.tcgJWoleq3kaIgT0ILIZ7u',
+  'admin'
+);
