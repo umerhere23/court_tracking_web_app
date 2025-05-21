@@ -52,3 +52,4 @@ VALUES (
   '$2y$10$wrilxoWJHndvlTMYFlzb6ucrnHSIrn.tcgJWoleq3kaIgT0ILIZ7u',
   'admin'
 );
+
