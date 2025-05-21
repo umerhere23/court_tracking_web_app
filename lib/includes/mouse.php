@@ -103,3 +103,7 @@ function resolve()
 get('/login', function ($app) {
     ($app->render)('standard', 'authentication/login');
 });
+
+get('/dashboard', function ($app) {
+    ($app->render)('standard', 'home');
+});
