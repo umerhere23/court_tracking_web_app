@@ -64,4 +64,9 @@ path('/case/{action}/{caseID}', function($app, $action, $caseID) {
     require_once __DIR__ . '/../lib/includes/case_controller.php';
 });
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === BASE_URL . '/index.php/login') {
+    require_once __DIR__ . '/../lib/includes/auth_controller.php';
+    exit();
+}
+
 resolve();
