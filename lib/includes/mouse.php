@@ -26,11 +26,11 @@ function get($path, $callback)
 
 // Generic handler for POST
 // I've left it in in case we need it.
-/*function post($path, $callback)
+function post($path, $callback)
 {
     global $routes;
     $routes['POST'][$path] = $callback;
-}*/
+}
 
 function compile_app(&$app)
 {
@@ -106,4 +106,8 @@ get('/login', function ($app) {
 
 get('/dashboard', function ($app) {
     ($app->render)('standard', 'home');
+});
+
+post('/login', function ($app) {
+    require_once __DIR__ . '/auth_controller.php';
 });

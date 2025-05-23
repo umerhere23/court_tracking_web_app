@@ -6,5 +6,4 @@ class User {
         $stmt->execute([$username]);
         return $stmt->fetch();
     }
-}
-
+} 
