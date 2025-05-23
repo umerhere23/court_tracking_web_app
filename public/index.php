@@ -8,7 +8,8 @@ define('BASE_URL', '/court_tracking_web_app/public');
 require_once '../lib/includes/mouse.php';
 
 get('/', function($app) {
-    ($app->render)('standard', 'home');
+    require_once __DIR__ . '/../lib/includes/home_controller.php';
+    ($app->render)('standard', 'home', ['stats' => $stats]);
 });
 
 path('/cases', function($app) {

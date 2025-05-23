@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../includes/Database.php';
 
 class CaseRecord
@@ -49,4 +50,38 @@ class CaseRecord
         $stmt = $db->prepare("INSERT INTO case_lawyer (case_ID, lawyer_ID) VALUES (?, ?)");
         $stmt->execute([$caseID, $lawyerID]);
     }
+
+    public static function getStatistics() {
+    $db = Database::getInstance();
+    $pdo = $db->getConnection();
+
+    // Total distinct cases from caserecord
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM caserecord");
+    $stmt->execute();
+    $total = $stmt->fetchColumn();
+
+    // Active (status = 'open' or 'active') from charge
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) IN ('open', 'active')");
+    $stmt->execute();
+    $active = $stmt->fetchColumn();
+
+    // Pending from charge
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'pending'");
+    $stmt->execute();
+    $pending = $stmt->fetchColumn();
+
+    // Closed from charge
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT case_ID) FROM charge WHERE LOWER(status) = 'closed'");
+    $stmt->execute();
+    $closed = $stmt->fetchColumn();
+
+    return [
+        'total' => $total,
+        'active' => $active,
+        'pending' => $pending,
+        'closed' => $closed
+    ];
+    }
+
+
 }
