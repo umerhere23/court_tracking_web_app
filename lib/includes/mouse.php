@@ -111,3 +111,7 @@ get('/dashboard', function ($app) {
 post('/login', function ($app) {
     require_once __DIR__ . '/auth_controller.php';
 });
+
+get('/logout', function ($app) {
+    require_once __DIR__ . '/logout.php';
+});

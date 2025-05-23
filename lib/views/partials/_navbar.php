@@ -27,14 +27,10 @@
           <a class="nav-link" href="<?= BASE_URL ?>/defendant/search">Search Defendants</a>
         </li>
         <li class="nav-item">
-          <?php if (!isset($_SESSION['user_id'])): ?>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= BASE_URL ?>/login">Login</a>
-            </li>
+          <?php if (isset($_SESSION['user_id'])): ?>
+            <a class="nav-link" href="<?= BASE_URL ?>/logout">Logout</a>
           <?php else: ?>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= BASE_URL ?>/lib/includes/logout.php">Logout</a>
-            </li>
+            <a class="nav-link" href="<?= BASE_URL ?>/login">Login</a>
           <?php endif; ?>
         </li>
       </ul>
