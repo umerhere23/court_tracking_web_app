@@ -8,7 +8,7 @@ session_start();
 define('BASE_URL', '/court_tracking_web_app/public');
 
 require_once '../lib/includes/mouse.php';
-
+ 
 get('/', function($app) {
     require_once __DIR__ . '/../lib/includes/home_controller.php';
     ($app->render)('standard', 'home', ['stats' => $stats]);
@@ -71,5 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_SERVER['REQUEST_URI'] === BASE_UR
     require_once __DIR__ . '/../lib/includes/auth_controller.php';
     exit();
 }
-
+path('/dashboard', function($app) {
+    require_once __DIR__ . '/../lib/includes/dashboard_controller.php';
+});
 resolve();
